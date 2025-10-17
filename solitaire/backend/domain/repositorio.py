@@ -80,7 +80,7 @@ class RepositorioPartidasJSON:
     def _from_dict(d: Optional[dict]) -> Optional[Partida]:
         if not d:
             return None
-        return Partida(
+        p = Partida(
             id=d["id"],
             modo=d.get("modo", "standard"),
             puntaje=int(d.get("puntaje", 0)),
@@ -88,6 +88,6 @@ class RepositorioPartidasJSON:
             tiempo_segundos=int(d.get("tiempo_segundos", 0)),
             estado_serializado=d.get("estado_serializado", {}),
             draw_count=int(d.get("draw_count", 1)),
-            _Partida__semilla=int(d.get("semilla", 0)),
         )
-
+        setattr(p, "_Partida__semilla", int(d.get("semilla", 0)))
+        return p

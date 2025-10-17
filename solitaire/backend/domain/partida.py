@@ -34,7 +34,7 @@ class Partida:
     tiempo_segundos: int
     estado_serializado: Dict[str, Any] = field(default_factory=dict)
     draw_count: int = 1
-    __semilla: int = field(default=0, repr=False)
+    __semilla: int = field(default=0, repr=False, init=False)
 
     @property
     def semilla(self) -> int:
@@ -46,7 +46,7 @@ class Partida:
     def nueva(cls, id: str, modo: str = "standard", draw_count: int = 1, seed: Optional[int] = None) -> "Partida":
         juego = KlondikeGame(mode=modo, draw_count=draw_count, seed=seed)
         estado = serialize_state(juego.to_state())
-        return cls(
+        p = cls(
             id=id,
             modo=modo,
             puntaje=estado.get("score", 0),
@@ -54,8 +54,10 @@ class Partida:
             tiempo_segundos=estado.get("seconds", 0),
             estado_serializado=estado,
             draw_count=draw_count,
-            __semilla=juego.seed,
         )
+        # set private seed after init
+        setattr(p, "_Partida__semilla", juego.seed)
+        return p
 
     def actualizar_desde_juego(self, juego: KlondikeGame) -> None:
         """Sincroniza atributos desde el estado actual del juego."""
@@ -65,4 +67,3 @@ class Partida:
         self.puntaje = est["score"]
         self.movimientos = est["moves"]
         self.tiempo_segundos = est["seconds"]
-
