@@ -1,15 +1,10 @@
-from flask import request, jsonify, send_from_directory
+from flask import request, jsonify, render_template
 from .services.game_manager import game_manager
-from .core.game_engine import SolitaireGame
 
 def register_routes(app):
     @app.route('/')
     def index():
-        return send_from_directory('templates', 'index.html')
-
-    @app.route('/static/<path:path>')
-    def static_proxy(path):
-        return send_from_directory('static', path)
+        return render_template('index.html')
 
     @app.route('/new_game', methods=['POST'])
     def new_game():
