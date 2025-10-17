@@ -25,7 +25,8 @@ def create_app() -> FastAPI:
     app.include_router(game_router)
 
     # mount frontend under /static and serve SPA at /
-    root = Path(__file__).resolve().parents[2]
+    # El frontend está dentro del paquete `solitaire/frontend`
+    root = Path(__file__).resolve().parents[1]  # .../solitaire
     static_dir = root / "frontend"
     if static_dir.exists():
         app.mount("/static", StaticFiles(directory=str(static_dir), html=False), name="frontend")
