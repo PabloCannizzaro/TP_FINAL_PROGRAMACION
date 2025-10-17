@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: klondike-solitaire
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn solitaire.backend.app:create_app --factory --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+

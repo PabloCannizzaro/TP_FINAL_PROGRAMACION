@@ -2,6 +2,12 @@
 
 Proyecto académico: Solitario Klondike con frontend web (SPA) y backend en Python (FastAPI). Cumple con modularización, TADs, herencia (clase abstracta), CRUD con persistencia JSON, docstrings, pruebas y CI.
 
+## Despliegue con 1 click (Render)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/algas/TP_FINAL_PROGRAMACION)
+
+Este botón usa el blueprint `render.yaml` incluido en el repositorio y levanta el servicio web automáticamente (instala dependencias y ejecuta `uvicorn` con el puerto asignado por Render).
+
 ## Requisitos
 
 - Python 3.10+
@@ -70,4 +76,3 @@ pytest -q
 - El historial de deshacer/rehacer guarda el estado serializado completo (simple/robusto).
 - La pila `PilaMazo` usa `ColaTAD` y mantiene snapshot para serialización.
 - El frontend usa JS vanilla (accesible, ARIA básico) para minimizar dependencias.
-
