@@ -16,22 +16,24 @@
         Draw <span id="draw">1</span>
       </div>
       <nav class="controls">
-        <button id="btn-new">Nuevo</button>
-        <button id="btn-draw">Robar</button>
-        <button id="btn-undo">Deshacer</button>
-        <button id="btn-redo">Rehacer</button>
-        <button id="btn-hint">Pista</button>
-        <button id="btn-autoplay">Autoplay</button>
+        <button id="btn-new" title="Nueva partida (modo estándar, Draw 1)">Nuevo</button>
+        <button id="btn-draw" title="Robar del mazo (Enter/Espacio sobre el mazo)">Robar</button>
+        <button id="btn-undo" title="Deshacer">Deshacer</button>
+        <button id="btn-redo" title="Rehacer">Rehacer</button>
+        <button id="btn-hint" title="Sugerir movimiento">Pista</button>
+        <button id="btn-autoplay" title="Auto mover a fundación">Autoplay</button>
       </nav>
     </header>
     <main>
       <section class="top">
-        <div class="stock" id="stock" aria-label="Mazo" role="button" tabindex="0"></div>
-        <div class="waste" id="waste" aria-label="Descarte"></div>
+        <div class="stock" id="stock" aria-label="Mazo" role="button" tabindex="0" title="Clic/Enter para robar"></div>
+        <div class="waste" id="waste" aria-label="Descarte" title="Arrastra la carta superior"></div>
         <div class="foundations" id="foundations" aria-label="Fundaciones"></div>
       </section>
       <section class="tableau" id="tableau" aria-label="Tableau" role="grid"></section>
     </main>
+    <footer class="tips">Doble clic en la carta superior para mover a fundación cuando sea válido.</footer>
     <script type="module" src="/static/main.js"></script>
   </body>
   </html>
+
