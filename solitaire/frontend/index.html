@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Klondike Solitaire</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Klondike</h1>
+      <div class="hud" role="status" aria-live="polite">
+        <span id="score">0</span> pts ·
+        <span id="moves">0</span> mov ·
+        <span id="time">0</span> s ·
+        Draw <span id="draw">1</span>
+      </div>
+      <nav class="controls">
+        <button id="btn-new">Nuevo</button>
+        <button id="btn-draw">Robar</button>
+        <button id="btn-undo">Deshacer</button>
+        <button id="btn-redo">Rehacer</button>
+        <button id="btn-hint">Pista</button>
+        <button id="btn-autoplay">Autoplay</button>
+      </nav>
+    </header>
+    <main>
+      <section class="top">
+        <div class="stock" id="stock" aria-label="Mazo" role="button" tabindex="0"></div>
+        <div class="waste" id="waste" aria-label="Descarte"></div>
+        <div class="foundations" id="foundations" aria-label="Fundaciones"></div>
+      </section>
+      <section class="tableau" id="tableau" aria-label="Tableau" role="grid"></section>
+    </main>
+    <script type="module" src="/main.js"></script>
+  </body>
+  </html>
+
