@@ -4,7 +4,8 @@ from pathlib import Path
 from app import create_app
 
 app = create_app()
-
+for r in app.url_map.iter_rules():
+    print("ROUTE:", r, "METHODS:", sorted(r.methods))
 # --- BYPASS: servir index.html directo (diagnóstico) ---
 @app.get("/")
 def root_index():
