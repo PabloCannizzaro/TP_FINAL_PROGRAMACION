@@ -1,4 +1,3 @@
-# app/api.py
 from flask import request, jsonify, render_template
 from .services.game_manager import game_manager
 
