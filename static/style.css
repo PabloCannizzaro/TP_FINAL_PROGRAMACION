@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #0b3a2e; color: #fff; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #102a24; border-bottom: 1px solid #0a211c; }
+.toolbar button { margin-right: 8px; }
+.board { padding: 12px; }
+.top-row { display: grid; grid-template-columns: 120px 120px 1fr; gap: 16px; align-items: start; }
+.stock, .waste, .foundation { width: 100px; height: 140px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; }
+.foundations { display: grid; grid-template-columns: repeat(4, 120px); gap: 16px; justify-content: start; }
+.tableau { display: grid; grid-template-columns: repeat(7, 120px); gap: 16px; margin-top: 24px; }
+.tableau-pile { width: 100px; min-height: 140px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; padding-top: 8px; }
+.card { width: 100px; height: 140px; border-radius: 8px; background: #fff; color: #000; border: 1px solid #333; position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.card.face-down { background: #153f34; color: #153f34; border: 1px solid #0f2e26; }
+.card.red { color: #b40000; }
+.card.black { color: #000; }
+.tableau-pile .card { position: absolute; }
+#win-banner { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); font-size: 40px; }
+.hidden { display: none; }

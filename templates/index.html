@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Klondike Solitaire</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="left">
+      <button id="new-game-btn">Nuevo Juego</button>
+      <button id="draw-btn">Robar</button>
+      <button id="undo-btn">Deshacer</button>
+      <button id="hint-btn">Pista</button>
+    </div>
+    <div class="right">
+      <button id="save-btn">Guardar</button>
+      <button id="load-btn">Cargar</button>
+      <span id="moves">Movimientos: 0</span>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="top-row">
+      <div class="stock" id="stock" aria-label="Mazo"></div>
+      <div class="waste" id="waste" aria-label="Descarte"></div>
+      <div class="foundations">
+        <div class="foundation" id="foundation-hearts" data-suit="hearts"></div>
+        <div class="foundation" id="foundation-diamonds" data-suit="diamonds"></div>
+        <div class="foundation" id="foundation-clubs" data-suit="clubs"></div>
+        <div class="foundation" id="foundation-spades" data-suit="spades"></div>
+      </div>
+    </section>
+
+    <section class="tableau" id="tableau">
+      <div class="tableau-pile" id="tableau-0" data-index="0"></div>
+      <div class="tableau-pile" id="tableau-1" data-index="1"></div>
+      <div class="tableau-pile" id="tableau-2" data-index="2"></div>
+      <div class="tableau-pile" id="tableau-3" data-index="3"></div>
+      <div class="tableau-pile" id="tableau-4" data-index="4"></div>
+      <div class="tableau-pile" id="tableau-5" data-index="5"></div>
+      <div class="tableau-pile" id="tableau-6" data-index="6"></div>
+    </section>
+  </main>
+
+  <div id="win-banner" class="hidden">¡Ganaste! 🎉</div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
