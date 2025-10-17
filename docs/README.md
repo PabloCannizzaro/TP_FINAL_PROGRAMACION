@@ -4,7 +4,7 @@ Proyecto académico: Solitario Klondike con frontend web (SPA) y backend en Pyth
 
 ## Despliegue con 1 click (Render)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/algas/TP_FINAL_PROGRAMACION)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
 
 Este botón usa el blueprint `render.yaml` incluido en el repositorio y levanta el servicio web automáticamente (instala dependencias y ejecuta `uvicorn` con el puerto asignado por Render).
 

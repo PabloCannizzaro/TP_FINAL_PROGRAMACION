@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -23,11 +24,16 @@ def create_app() -> FastAPI:
 
     app.include_router(game_router)
 
-    # mount frontend
+    # mount frontend under /static and serve SPA at /
     root = Path(__file__).resolve().parents[2]
     static_dir = root / "frontend"
     if static_dir.exists():
-        app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="frontend")
+        app.mount("/static", StaticFiles(directory=str(static_dir), html=False), name="frontend")
+
+        index_path = static_dir / "index.html"
+
+        @app.get("/")
+        def spa_index():  # type: ignore[unused-ignore]
+            return FileResponse(str(index_path))
 
     return app
-
