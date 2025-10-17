@@ -5,7 +5,6 @@ from .services.game_manager import game_manager
 def register_routes(app):
     @app.route("/")
     def index():
-        # Renderiza templates/index.html vía Jinja
         return render_template("index.html")
 
     @app.post("/new_game")
