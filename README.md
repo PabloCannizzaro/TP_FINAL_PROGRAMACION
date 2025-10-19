@@ -1,5 +1,9 @@
 Klondike Solitaire (FastAPI + Web)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
+
+Despliegue con 1 click en Render usando el blueprint `render.yaml` incluido en el repo. El servicio instala dependencias y ejecuta `uvicorn` con el puerto que asigna Render.
+
 Diagnóstico inicial
 
 - Frontend presentaba caracteres corruptos y un bug de sintaxis en `solitaire/frontend/main.js` que rompía el render (línea de stock con comillas inválidas y símbolos rotos). Además, no había manejo de errores ni estados de carga, permitiendo dobles clics y múltiples requests concurrentes.
@@ -72,4 +76,3 @@ Próximos pasos
 
 - Agregar pruebas end-to-end del frontend (Playwright) si se desea validar UI.
 - Ampliar accesibilidad con navegación por teclado entre columnas/celdas.
-
