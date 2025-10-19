@@ -22,20 +22,22 @@
         <button id="btn-redo" title="Rehacer">Rehacer</button>
         <button id="btn-hint" title="Sugerir movimiento">Pista</button>
         <button id="btn-autoplay" title="Auto mover a fundación">Autoplay</button>
-        <button id="btn-theme" title="Alternar tema">Light</button>
       </nav>
     </header>
     <main>
       <section class="top">
         <div class="stock" id="stock" aria-label="Mazo" role="button" tabindex="0" title="Clic/Enter para robar"></div>
         <div class="waste" id="waste" aria-label="Descarte" title="Arrastra la carta superior"></div>
+        <button class="waste-peek" id="btn-waste-peek" title="Ver cartas detrás del descarte">Ver atrás</button>
         <div class="foundations" id="foundations" aria-label="Fundaciones"></div>
       </section>
       <section class="tableau" id="tableau" aria-label="Tableau" role="grid"></section>
     </main>
     <footer class="tips">Doble clic en la carta superior para mover a fundación cuando sea válido.</footer>
     <div id="toast" class="toast" hidden role="alert" aria-live="assertive"></div>
+    <div id="overlay" class="overlay" aria-hidden="true" aria-label="Cargando">
+      <div class="spinner" role="status" aria-live="polite"></div>
+    </div>
     <script type="module" src="/static/main.js"></script>
   </body>
   </html>
-

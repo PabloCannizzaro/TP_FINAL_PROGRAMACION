@@ -76,3 +76,25 @@ Próximos pasos
 
 - Agregar pruebas end-to-end del frontend (Playwright) si se desea validar UI.
 - Ampliar accesibilidad con navegación por teclado entre columnas/celdas.
+
+Assets de cartas (frente y dorso)
+
+- Carpeta: `solitaire/frontend/assets/cards/`
+- Nombres esperados (minúsculas):
+  - Dorso por defecto: `back.png`
+  - Frente: `<rank>_of_<suit>.png`
+    - `<rank>`: `ace, 2..10, jack, queen, king`
+    - `<suit>`: `hearts, diamonds, clubs, spades`
+- Ejemplos: `ace_of_hearts.png`, `10_of_spades.png`, `queen_of_diamonds.png`
+- Fallback: si falta el archivo, se renderiza un SVG de placeholder (sin necesidad de assets externos).
+
+Notas de accesibilidad (a11y)
+
+- Cada carta face-up se renderiza como imagen con `alt` y `aria-label` (“Siete de Corazones”, etc.).
+- Botones muestran estado de carga y evitan doble click; overlay semitransparente anuncia acciones en curso.
+- Focus visible en controles y zonas de drop.
+
+Tema claro/oscuro
+
+- Se quitó el botón “Light”. El tema por defecto queda tal como está (oscuro).
+- Para reactivar un toggle, se puede volver a agregar un botón que alterne `document.documentElement.dataset.theme` entre `light` y `dark` (ya hay estilos definidos para `:root[data-theme="light"]`).
