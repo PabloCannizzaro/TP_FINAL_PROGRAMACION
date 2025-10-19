@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -21,6 +22,15 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Unified error handling to ensure consistent JSON errors
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):  # type: ignore[override]
+        return JSONResponse(status_code=exc.status_code, content={"error": str(exc.detail)})
+
+    @app.exception_handler(ValueError)
+    async def value_error_handler(request: Request, exc: ValueError):  # type: ignore[override]
+        return JSONResponse(status_code=400, content={"error": str(exc) or "Bad Request"})
 
     app.include_router(game_router)
 

@@ -1,7 +1,19 @@
-// Improved SPA logic: better rendering, drag/drop and double-click helpers.
+// Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
 const api = {
-  post: (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).then(r => r.json()),
-  get: (url) => fetch(url).then(r => r.json())
+  async post(url, body) {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
+    });
+    if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
+    return r.json();
+  },
+  async get(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
+    return r.json();
+  }
 };
 
 let state = null;
@@ -13,16 +25,46 @@ const RANK_STR = { 1:'A', 11:'J', 12:'Q', 13:'K' };
 function $(sel) { return document.querySelector(sel); }
 function rankStr(n) { return RANK_STR[n] || String(n); }
 
-async function newGame() {
-  const res = await api.post('/api/game/new', { mode: 'standard', draw: 1 });
-  state = res.state; render();
+function setLoading(loading) {
+  const btns = document.querySelectorAll('button');
+  btns.forEach(b => { b.disabled = !!loading; b.setAttribute('aria-busy', loading ? 'true' : 'false'); });
 }
 
-async function draw() { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); }
-async function undo() { try { const res = await api.post('/api/game/undo'); state = res.state; render(); } catch {} }
-async function redo() { try { const res = await api.post('/api/game/redo'); state = res.state; render(); } catch {} }
-async function hint() { const res = await api.post('/api/game/hint'); if (res.hint) highlightHint(res.hint); }
-async function autoplay() { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); }
+function toast(msg, kind = 'error') {
+  const t = $('#toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.dataset.kind = kind;
+  t.hidden = false;
+  setTimeout(() => { t.hidden = true; t.textContent=''; }, 2000);
+}
+
+async function action(fn) {
+  try {
+    setLoading(true);
+    await fn();
+  } catch (e) {
+    console.error(e);
+    toast(String(e.message || e));
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function newGame() {
+  await action(async () => {
+    const res = await api.post('/api/game/new', { mode: 'standard', draw: 1 });
+    state = res.state; render();
+  });
+}
+
+async function draw() {
+  await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); });
+}
+async function undo() { await action(async () => { const res = await api.post('/api/game/undo'); state = res.state; render(); }); }
+async function redo() { await action(async () => { const res = await api.post('/api/game/redo'); state = res.state; render(); }); }
+async function hint() { await action(async () => { const res = await api.post('/api/game/hint'); if (res.hint) highlightHint(res.hint); }); }
+async function autoplay() { await action(async () => { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); }); }
 
 function renderHUD() {
   $('#score').textContent = state.score;
@@ -61,7 +103,7 @@ function render() {
     waste.appendChild(el);
   });
   // stock visual
-  const stock = $('#stock'); stock.textContent = state.stock.length ? '🂠' : '×';
+  const stock = $('#stock'); stock.textContent = state.stock.length ? '🂠' : '—';
   // foundations
   const f = $('#foundations'); f.innerHTML='';
   for (const suit of SUITS) {
@@ -121,8 +163,10 @@ async function onDropTableau(e) {
   } else {
     move = { type: 't2t', from_col: data.from_col, start_index: data.start_index, to_col };
   }
-  const res = await api.post('/api/game/move', { move });
-  state = res.state; render();
+  await action(async () => {
+    const res = await api.post('/api/game/move', { move });
+    state = res.state; render();
+  });
 }
 
 async function onDropFoundation(e) {
@@ -141,22 +185,22 @@ async function onDropFoundation(e) {
     }
     move = { type: 't2f', from_col: data.from_col };
   }
-  const res = await api.post('/api/game/move', { move });
-  state = res.state; render();
+  await action(async () => {
+    const res = await api.post('/api/game/move', { move });
+    state = res.state; render();
+  });
 }
 
 async function onDoubleClickTop(e) {
   const el = e.currentTarget;
   const parent = el.parentElement;
   if (parent.id === 'waste') {
-    const res = await api.post('/api/game/move', { move: { type: 'w2f' } });
-    state = res.state; render();
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'w2f' } }); state = res.state; render(); });
   } else if (parent.classList.contains('col')) {
     const from_col = Number(parent.dataset.col);
     const idx = Number(el.dataset.index);
     if (idx !== state.tableau[from_col].length - 1) return; // solo tope
-    const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } });
-    state = res.state; render();
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } }); state = res.state; render(); });
   }
 }
 
@@ -167,6 +211,7 @@ function highlightHint(h) {
   if (h.type === 't2f' || h.type === 't2t') { const sel = h.from_col != null ? `.col[data-col="${h.from_col}"]` : '.col'; const col = document.querySelector(sel); if (col) { col.classList.add('droptarget'); setTimeout(() => col.classList.remove('droptarget'), 600);} }
 }
 
+// controls
 document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-draw').addEventListener('click', draw);
 document.getElementById('btn-undo').addEventListener('click', undo);
@@ -176,6 +221,17 @@ document.getElementById('btn-autoplay').addEventListener('click', autoplay);
 
 document.getElementById('stock').addEventListener('click', draw);
 document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
+
+// theme toggle
+const themeBtn = document.getElementById('btn-theme');
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    themeBtn.textContent = next === 'light' ? 'Dark' : 'Light';
+  });
+}
 
 // bootstrap
 api.get('/api/game/state').then(s => { state = s; render(); }).catch(newGame);
