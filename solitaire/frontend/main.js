@@ -1,6 +1,6 @@
-// Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
+﻿// Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
 function humanizeErrorMessage(msg, status) {
-  let s = String(msg || 'Ocurrió un error');
+  let s = String(msg || 'OcurriÃ³ un error');
   try {
     const obj = JSON.parse(s);
     if (obj && (obj.error || obj.detail || obj.message)) {
@@ -10,11 +10,11 @@ function humanizeErrorMessage(msg, status) {
     // not JSON
   }
   const map = {
-    'Movimiento ilegal': 'Movimiento no válido.',
-    'move inválido': 'Acción inválida.',
-    'Bad Request': 'Solicitud inválida.',
-    'No hay más para deshacer': 'No hay movimientos para deshacer.',
-    'No hay más para rehacer': 'No hay movimientos para rehacer.',
+    'Movimiento ilegal': 'Movimiento no vÃ¡lido.',
+    'move invÃ¡lido': 'AcciÃ³n invÃ¡lida.',
+    'Bad Request': 'Solicitud invÃ¡lida.',
+    'No hay mÃ¡s para deshacer': 'No hay movimientos para deshacer.',
+    'No hay mÃ¡s para rehacer': 'No hay movimientos para rehacer.',
   };
   if (map[s]) return map[s];
   if (/^HTTP\s*\d+/.test(s)) return `Error ${status || ''}`.trim();
@@ -54,10 +54,10 @@ const api = {
 };
 
 let state = null;
-let wastePeek = 1; // cuántas cartas del descarte se muestran (1 o hasta 3)
+let wastePeek = 1; // cuÃ¡ntas cartas del descarte se muestran (1 o hasta 3)
 
 const SUITS = ['hearts','diamonds','clubs','spades'];
-const SUIT_SYMBOL = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+const SUIT_SYMBOL = { hearts: 'â™¥', diamonds: 'â™¦', clubs: 'â™£', spades: 'â™ ' };
 const RANK_STR = { 1:'A', 11:'J', 12:'Q', 13:'K' };
 
 function rankNameEN(n){ if(n===1)return 'ace'; if(n===11)return 'jack'; if(n===12)return 'queen'; if(n===13)return 'king'; return String(n); }
@@ -65,7 +65,7 @@ function cardFileName(card){ return `${rankNameEN(card.rank)}_of_${card.suit}.pn
 function cardImageUrl(card){ return `/static/assets/cards/${cardFileName(card)}`; }
 function cardNameES(card){
   const ranks = {1:'As',2:'Dos',3:'Tres',4:'Cuatro',5:'Cinco',6:'Seis',7:'Siete',8:'Ocho',9:'Nueve',10:'Diez',11:'Jota',12:'Reina',13:'Rey'};
-  const suits = {hearts:'Corazones',diamonds:'Diamantes',clubs:'Tréboles',spades:'Picas'};
+  const suits = {hearts:'Corazones',diamonds:'Diamantes',clubs:'TrÃ©boles',spades:'Picas'};
   return `${ranks[card.rank]} de ${suits[card.suit]}`;
 }
 function svgDataUrlForCard(card){
@@ -187,7 +187,7 @@ function render() {
     }
     waste.appendChild(el);
   });
-  // botón ver atrás
+  // botÃ³n ver atrÃ¡s
   const btnPeek = $('#btn-waste-peek');
   if (btnPeek) {
     btnPeek.disabled = wlen <= 1;
@@ -202,7 +202,7 @@ function render() {
     back.setAttribute('aria-label', 'Mazo');
     stock.appendChild(back);
   } else {
-    stock.textContent = '—';
+    stock.textContent = 'â€”';
   }
   // foundations
   const f = $('#foundations'); f.innerHTML='';
@@ -282,7 +282,7 @@ async function onDropFoundation(e) {
   if (data.from === 'waste') {
     move = { type: 'w2f' };
   } else {
-    // Solo válido si arrastramos la carta superior de la columna
+    // Solo vÃ¡lido si arrastramos la carta superior de la columna
     const topLen = state.tableau[data.from_col].length;
     if (data.start_index !== topLen - 1) {
       e.currentTarget.classList.add('invalid');
@@ -371,7 +371,7 @@ async function loadLeaderboard() {
     list.innerHTML = '';
     const items = res.items || [];
     if (!items.length) {
-      const li = document.createElement('li'); li.textContent = 'Sin datos aún'; list.appendChild(li); return;
+      const li = document.createElement('li'); li.textContent = 'Sin datos aÃºn'; list.appendChild(li); return;
     }
     items.forEach((it) => {
       const li = document.createElement('li');
@@ -424,7 +424,8 @@ function savePlayerName(ev) {
   closeNameModal();
   // devolver foco y arrancar partida con el nombre
   const newBtn = document.getElementById('btn-new'); if (newBtn) newBtn.focus();
-  newGame();
+  // informar al backend el nombre para asociarlo a la partida actual
+  api.post('/api/game/player', { player_name: val }).catch(() => {});
   renderHUD();
 }
 if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
@@ -437,7 +438,7 @@ if (nameModal) {
     if (e.target === nameModal) closeNameModal();
   });
 }
-// Delegación de clicks por si el DOM cambia
+// DelegaciÃ³n de clicks por si el DOM cambia
 document.addEventListener('click', (e) => {
   const t = e.target || e.srcElement;
   if (!t) return;
@@ -455,19 +456,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 async function initApp() {
-  try {
-    state = await api.get('/api/game/state');
-    render();
-  } catch (_) {
-    await newGame();
-  }
-  // Siempre pedir el nombre al cargar/reiniciar página
+  // Siempre pedir el nombre al cargar/reiniciar página y crear una partida nueva
   safeSet('playerName', '');
   openNameModal();
+  await newGame();
 }
+
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => initApp());
 } else {
   initApp();
 }
+

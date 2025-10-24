@@ -2420,5 +2420,1219 @@
     "draw_count": 1,
     "semilla": 250733867,
     "jugador": null
+  },
+  "28db55b6-a7b1-4b9f-a268-9759b7c28225": {
+    "id": "28db55b6-a7b1-4b9f-a268-9759b7c28225",
+    "modo": "standard",
+    "puntaje": 0,
+    "movimientos": 1,
+    "tiempo_segundos": 0,
+    "estado_serializado": {
+      "mode": "standard",
+      "draw_count": 1,
+      "stock": [
+        {
+          "rank": 3,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 12,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 13,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 12,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "spades",
+          "face_up": false
+        }
+      ],
+      "waste": [
+        {
+          "rank": 6,
+          "suit": "spades",
+          "face_up": true
+        }
+      ],
+      "foundations": {
+        "hearts": [],
+        "diamonds": [],
+        "clubs": [],
+        "spades": []
+      },
+      "tableau": [
+        [
+          {
+            "rank": 5,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 1,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 10,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 9,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 8,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 7,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 2,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 1,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 8,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 1,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 12,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 8,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ]
+      ],
+      "score": 0,
+      "moves": 1,
+      "seconds": 0,
+      "won": false
+    },
+    "draw_count": 1,
+    "semilla": 380606656,
+    "jugador": null
+  },
+  "50c02331-fee6-48f4-81c2-0b49fe87af95": {
+    "id": "50c02331-fee6-48f4-81c2-0b49fe87af95",
+    "modo": "standard",
+    "puntaje": 0,
+    "movimientos": 0,
+    "tiempo_segundos": 0,
+    "estado_serializado": {
+      "mode": "standard",
+      "draw_count": 1,
+      "stock": [
+        {
+          "rank": 6,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 13,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 12,
+          "suit": "hearts",
+          "face_up": false
+        }
+      ],
+      "waste": [],
+      "foundations": {
+        "hearts": [],
+        "diamonds": [],
+        "clubs": [],
+        "spades": []
+      },
+      "tableau": [
+        [
+          {
+            "rank": 9,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 7,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 10,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 9,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 13,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 1,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 7,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 4,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 8,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 13,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ]
+      ],
+      "score": 0,
+      "moves": 0,
+      "seconds": 0,
+      "won": false
+    },
+    "draw_count": 1,
+    "semilla": 291505421,
+    "jugador": null
+  },
+  "975edfea-2456-4db9-82d7-56bd74d38b78": {
+    "id": "975edfea-2456-4db9-82d7-56bd74d38b78",
+    "modo": "standard",
+    "puntaje": 0,
+    "movimientos": 1,
+    "tiempo_segundos": 0,
+    "estado_serializado": {
+      "mode": "standard",
+      "draw_count": 1,
+      "stock": [
+        {
+          "rank": 13,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 4,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 10,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 10,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 10,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 13,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "hearts",
+          "face_up": false
+        }
+      ],
+      "waste": [
+        {
+          "rank": 8,
+          "suit": "clubs",
+          "face_up": true
+        }
+      ],
+      "foundations": {
+        "hearts": [],
+        "diamonds": [],
+        "clubs": [],
+        "spades": []
+      },
+      "tableau": [
+        [
+          {
+            "rank": 11,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 12,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 9,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 8,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 7,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 8,
+            "suit": "spades",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 1,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 1,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 1,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 8,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 9,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 7,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "diamonds",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 6,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ]
+      ],
+      "score": 0,
+      "moves": 1,
+      "seconds": 0,
+      "won": false
+    },
+    "draw_count": 1,
+    "semilla": 480380477,
+    "jugador": null
+  },
+  "ca5bdca5-2145-4d4c-ab12-42379ad821ab": {
+    "id": "ca5bdca5-2145-4d4c-ab12-42379ad821ab",
+    "modo": "standard",
+    "puntaje": 0,
+    "movimientos": 0,
+    "tiempo_segundos": 0,
+    "estado_serializado": {
+      "mode": "standard",
+      "draw_count": 1,
+      "stock": [
+        {
+          "rank": 8,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 7,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 12,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 12,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 10,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 11,
+          "suit": "hearts",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 5,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 10,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 1,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 8,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 9,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 13,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 3,
+          "suit": "spades",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "diamonds",
+          "face_up": false
+        },
+        {
+          "rank": 6,
+          "suit": "clubs",
+          "face_up": false
+        },
+        {
+          "rank": 2,
+          "suit": "clubs",
+          "face_up": false
+        }
+      ],
+      "waste": [],
+      "foundations": {
+        "hearts": [],
+        "diamonds": [],
+        "clubs": [],
+        "spades": []
+      },
+      "tableau": [
+        [
+          {
+            "rank": 4,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 13,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "spades",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 10,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 3,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 1,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 3,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 2,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 9,
+            "suit": "spades",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 9,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 7,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "clubs",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 4,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "spades",
+            "face_up": false
+          },
+          {
+            "rank": 7,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 10,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 13,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 4,
+            "suit": "spades",
+            "face_up": true
+          }
+        ],
+        [
+          {
+            "rank": 1,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "clubs",
+            "face_up": false
+          },
+          {
+            "rank": 11,
+            "suit": "diamonds",
+            "face_up": false
+          },
+          {
+            "rank": 9,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 6,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 5,
+            "suit": "hearts",
+            "face_up": false
+          },
+          {
+            "rank": 12,
+            "suit": "hearts",
+            "face_up": true
+          }
+        ]
+      ],
+      "score": 0,
+      "moves": 0,
+      "seconds": 0,
+      "won": false
+    },
+    "draw_count": 1,
+    "semilla": 86804409,
+    "jugador": null
   }
 }
