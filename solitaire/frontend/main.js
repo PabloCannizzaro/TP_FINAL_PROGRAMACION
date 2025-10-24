@@ -302,11 +302,18 @@ if (btnCloseRules && rulesModal) {
     rulesModal.setAttribute('aria-hidden', 'true');
   });
 }
+// cerrar reglas al hacer click fuera del contenido
+if (rulesModal) {
+  rulesModal.addEventListener('click', (e) => {
+    if (e.target === rulesModal) rulesModal.setAttribute('aria-hidden', 'true');
+  });
+}
 
 // Nombre de jugador modal
 const nameModal = document.getElementById('name-modal');
 const inputName = document.getElementById('player-name');
 const btnSaveName = document.getElementById('btn-save-name');
+const btnCloseName = document.getElementById('btn-close-name');
 function openNameModal() {
   if (!nameModal) return;
   nameModal.setAttribute('aria-hidden', 'false');
@@ -318,11 +325,27 @@ function savePlayerName() {
   if (val.length < 2) { toast('Ingresa un nombre válido'); return; }
   localStorage.setItem('playerName', val);
   closeNameModal();
+  // devolver foco y arrancar partida con el nombre
+  document.getElementById('btn-new')?.focus();
   newGame();
   renderHUD();
 }
 if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
 if (inputName) inputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerName(); });
+if (btnCloseName) btnCloseName.addEventListener('click', () => closeNameModal());
+// cerrar al hacer click en overlay
+if (nameModal) {
+  nameModal.addEventListener('click', (e) => {
+    if (e.target === nameModal) closeNameModal();
+  });
+}
+// cerrar modales con Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (rulesModal && rulesModal.getAttribute('aria-hidden') === 'false') rulesModal.setAttribute('aria-hidden', 'true');
+    if (nameModal && nameModal.getAttribute('aria-hidden') === 'false') closeNameModal();
+  }
+});
 
 async function initApp() {
   try {

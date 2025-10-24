@@ -66,14 +66,15 @@
       </div>
     </div>
     <!-- Modal de nombre de jugador -->
-    <div id="name-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="name-title">
-      <div class="modal-content small">
+    <div id="name-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="name-title">
+      <div class="modal-content small" role="document">
         <header class="modal-header">
           <h2 id="name-title">¿Cómo te llamas?</h2>
+          <button id="btn-close-name" class="modal-close" aria-label="Cerrar">×</button>
         </header>
         <div class="modal-body">
           <label for="player-name" class="visually-hidden">Nombre</label>
-          <input id="player-name" type="text" maxlength="32" placeholder="Tu nombre" />
+          <input id="player-name" type="text" maxlength="32" placeholder="Tu nombre" autocomplete="name" />
           <div class="modal-actions">
             <button id="btn-save-name">Guardar</button>
           </div>
