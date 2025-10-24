@@ -25,6 +25,7 @@ class Partida:
     - ``estado_serializado``: dict JSON-friendly con todo el estado del juego
     - ``__semilla``: semilla privada de barajado (encapsulada)
     - ``draw_count``: 1 o 3
+    - ``jugador``: nombre del jugador (opcional)
     """
 
     id: str
@@ -35,6 +36,7 @@ class Partida:
     estado_serializado: Dict[str, Any] = field(default_factory=dict)
     draw_count: int = 1
     __semilla: int = field(default=0, repr=False, init=False)
+    jugador: Optional[str] = None
 
     @property
     def semilla(self) -> int:
@@ -43,7 +45,14 @@ class Partida:
         return self.__semilla
 
     @classmethod
-    def nueva(cls, id: str, modo: str = "standard", draw_count: int = 1, seed: Optional[int] = None) -> "Partida":
+    def nueva(
+        cls,
+        id: str,
+        modo: str = "standard",
+        draw_count: int = 1,
+        seed: Optional[int] = None,
+        jugador: Optional[str] = None,
+    ) -> "Partida":
         juego = KlondikeGame(mode=modo, draw_count=draw_count, seed=seed)
         estado = serialize_state(juego.to_state())
         p = cls(
@@ -54,6 +63,7 @@ class Partida:
             tiempo_segundos=estado.get("seconds", 0),
             estado_serializado=estado,
             draw_count=draw_count,
+            jugador=jugador,
         )
         # set private seed after init
         setattr(p, "_Partida__semilla", juego.seed)

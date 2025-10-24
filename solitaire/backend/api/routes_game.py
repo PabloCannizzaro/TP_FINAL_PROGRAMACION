@@ -54,8 +54,15 @@ def new_game(payload: Dict[str, Any]) -> Dict[str, Any]:
     mode = str(payload.get("mode", "standard"))
     draw = int(payload.get("draw", 1))
     seed = payload.get("seed")
+    player_name = payload.get("player_name")
     pid = str(uuid.uuid4())
-    p = Partida.nueva(id=pid, modo=mode, draw_count=draw, seed=int(seed) if seed is not None else None)
+    p = Partida.nueva(
+        id=pid,
+        modo=mode,
+        draw_count=draw,
+        seed=int(seed) if seed is not None else None,
+        jugador=str(player_name) if player_name else None,
+    )
     g = KlondikeGame(mode=mode, draw_count=draw, seed=p.semilla)
     holder.game, holder.partida = g, p
     _repo().crear(p)

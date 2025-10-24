@@ -74,6 +74,7 @@ class RepositorioPartidasJSON:
             "estado_serializado": p.estado_serializado,
             "draw_count": p.draw_count,
             "semilla": p.semilla,
+            "jugador": p.jugador,
         }
 
     @staticmethod
@@ -88,6 +89,7 @@ class RepositorioPartidasJSON:
             tiempo_segundos=int(d.get("tiempo_segundos", 0)),
             estado_serializado=d.get("estado_serializado", {}),
             draw_count=int(d.get("draw_count", 1)),
+            jugador=d.get("jugador"),
         )
         setattr(p, "_Partida__semilla", int(d.get("semilla", 0)))
         return p

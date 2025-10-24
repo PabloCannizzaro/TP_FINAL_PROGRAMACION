@@ -72,7 +72,8 @@ async function action(fn) {
 
 async function newGame() {
   await action(async () => {
-    const res = await api.post('/api/game/new', { mode: 'standard', draw: 1 });
+    const playerName = localStorage.getItem('playerName') || null;
+    const res = await api.post('/api/game/new', { mode: 'standard', draw: 1, player_name: playerName });
     state = res.state; render();
   });
 }
@@ -90,6 +91,11 @@ function renderHUD() {
   $('#moves').textContent = state.moves;
   $('#time').textContent = state.seconds;
   $('#draw').textContent = state.draw_count;
+  const name = localStorage.getItem('playerName');
+  if (name) {
+    const el = document.getElementById('player');
+    if (el) el.textContent = name;
+  }
 }
 
 function cardEl(card) {
@@ -282,5 +288,51 @@ if (peekBtn) {
   });
 }
 
-// bootstrap
-api.get('/api/game/state').then(s => { state = s; render(); }).catch(newGame);
+// Reglas modal
+const rulesModal = document.getElementById('rules-modal');
+const btnRules = document.getElementById('btn-rules');
+const btnCloseRules = document.getElementById('btn-close-rules');
+if (btnRules && rulesModal) {
+  btnRules.addEventListener('click', () => {
+    rulesModal.setAttribute('aria-hidden', 'false');
+  });
+}
+if (btnCloseRules && rulesModal) {
+  btnCloseRules.addEventListener('click', () => {
+    rulesModal.setAttribute('aria-hidden', 'true');
+  });
+}
+
+// Nombre de jugador modal
+const nameModal = document.getElementById('name-modal');
+const inputName = document.getElementById('player-name');
+const btnSaveName = document.getElementById('btn-save-name');
+function openNameModal() {
+  if (!nameModal) return;
+  nameModal.setAttribute('aria-hidden', 'false');
+  setTimeout(() => { inputName?.focus(); }, 50);
+}
+function closeNameModal() { nameModal?.setAttribute('aria-hidden', 'true'); }
+function savePlayerName() {
+  const val = (inputName?.value || '').trim();
+  if (val.length < 2) { toast('Ingresa un nombre válido'); return; }
+  localStorage.setItem('playerName', val);
+  closeNameModal();
+  newGame();
+  renderHUD();
+}
+if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
+if (inputName) inputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerName(); });
+
+async function initApp() {
+  try {
+    state = await api.get('/api/game/state');
+    render();
+  } catch (_) {
+    await newGame();
+  }
+  const existing = localStorage.getItem('playerName');
+  if (!existing) openNameModal(); else renderHUD();
+}
+
+initApp();
