@@ -157,6 +157,7 @@ class KlondikeGame:
             "score": self.scoring.score,
             "moves": self.scoring.moves,
             "seconds": self.scoring.seconds(),
+            "won": self.is_won(),
         }
 
     def from_state(self, data: Dict[str, Any]) -> None:
@@ -211,7 +212,10 @@ class KlondikeGame:
                 if c.face_up:
                     c = Card(c.rank, c.suit, False)
                 self.stock.apilar(c)
-            self.scoring.add_points(-20)  # penalización ligera por reciclar
+            # Penalty for cycling through stock (reserve):
+            # - Draw 1: -100 points per cycle
+            # - Draw 3: -20 points per cycle
+            self.scoring.add_points(-100 if self.draw_count == 1 else -20)
             self.scoring.add_move()
             return True
 
@@ -263,7 +267,8 @@ class KlondikeGame:
         dest.apilar(top)
         origen.desapilar()
         self._flip_top_if_needed(origen)
-        self.scoring.add_points(10)
+        # Penalty: moving from tableau to foundation costs 15 points
+        self.scoring.add_points(-15)
         self.scoring.add_move()
         return True
 
@@ -398,6 +403,8 @@ class KlondikeGame:
         # guardar actual en redo
         self.history.push_redo(serialize_state(self.to_state()))
         self.from_state(prev)
+        # Penalty for using undo: -5 points
+        self.scoring.add_points(-5)
         return True
 
     def redo(self) -> bool:
@@ -409,3 +416,10 @@ class KlondikeGame:
         self.from_state(nxt)
         return True
 
+    # -------------------- Estado de victoria --------------------
+    def is_won(self) -> bool:
+        """Return True if all four foundations have 13 cards each."""
+        try:
+            return all(len(pila.cartas()) == 13 for pila in self.foundations.values())
+        except Exception:
+            return False
