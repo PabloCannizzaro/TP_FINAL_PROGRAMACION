@@ -271,17 +271,18 @@ function highlightHint(h) {
 }
 
 // controls
-document.getElementById('btn-new').addEventListener('click', newGame);
-document.getElementById('btn-draw').addEventListener('click', draw);
-document.getElementById('btn-undo').addEventListener('click', undo);
-document.getElementById('btn-redo').addEventListener('click', redo);
-document.getElementById('btn-hint').addEventListener('click', hint);
-document.getElementById('btn-autoplay').addEventListener('click', autoplay);
-document.getElementById('btn-rules').addEventListener('click', () => openModal('modal-rules'));
-document.getElementById('btn-scores').addEventListener('click', async () => {
+const eNew = document.getElementById('btn-new'); if (eNew) eNew.addEventListener('click', newGame);
+const eDraw = document.getElementById('btn-draw'); if (eDraw) eDraw.addEventListener('click', draw);
+const eUndo = document.getElementById('btn-undo'); if (eUndo) eUndo.addEventListener('click', undo);
+const eRedo = document.getElementById('btn-redo'); if (eRedo) eRedo.addEventListener('click', redo);
+const eHint = document.getElementById('btn-hint'); if (eHint) eHint.addEventListener('click', hint);
+const eAuto = document.getElementById('btn-autoplay'); if (eAuto) eAuto.addEventListener('click', autoplay);
+const eRules = document.getElementById('btn-rules'); if (eRules) eRules.addEventListener('click', () => openModal('modal-rules'));
+const eScores = document.getElementById('btn-scores'); if (eScores) eScores.addEventListener('click', async () => {
   await action(async () => {
     const res = await api.get('/api/scoreboard');
     const tbody = document.getElementById('scores-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
     (res.items || []).forEach(row => {
       const tr = document.createElement('tr');
@@ -293,11 +294,16 @@ document.getElementById('btn-scores').addEventListener('click', async () => {
   });
 });
 
-document.getElementById('btn-new2').addEventListener('click', newGame);
+const eNew2 = document.getElementById('btn-new2'); if (eNew2) eNew2.addEventListener('click', newGame);
 document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModals));
 
-document.getElementById('stock').addEventListener('click', draw);
-document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
+const eStock = document.getElementById('stock'); if (eStock) {
+  eStock.addEventListener('click', draw);
+  eStock.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
+}
+
+// accesibilidad: cerrar modales con Escape
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModals(); });
 
 // waste peek toggle
 const peekBtn = document.getElementById('btn-waste-peek');
@@ -310,4 +316,3 @@ if (peekBtn) {
 
 // bootstrap
 api.get('/api/game/state').then(s => { state = s; render(); checkVictory(); }).catch(newGame);
-

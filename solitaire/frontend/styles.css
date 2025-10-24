@@ -7,6 +7,7 @@ header { display:flex; align-items:center; gap:1rem; padding:0.5rem 1rem; border
 .controls button:hover { background:#17324b; }
 .controls .right { float:right; margin-left: .5rem; }
 .controls button[disabled] { opacity:.6; cursor:not-allowed; }
+.controls #btn-rules { margin-left:auto; }
 main { padding: 1rem; }
 .top { display:grid; grid-template-columns: 92px 92px auto; grid-auto-rows: min-content; gap:1rem; align-items:flex-start; }
 .stock, .waste { width: 92px; height:128px; border-radius:8px; border:2px dashed #456; display:flex; align-items:center; justify-content:center; position:relative; }
