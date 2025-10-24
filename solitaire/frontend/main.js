@@ -70,9 +70,16 @@ async function action(fn) {
   }
 }
 
+function safeGet(key) {
+  try { return window.localStorage ? localStorage.getItem(key) : null; } catch (_) { return null; }
+}
+function safeSet(key, value) {
+  try { if (window.localStorage) localStorage.setItem(key, value); } catch (_) { /* ignore */ }
+}
+
 async function newGame() {
   await action(async () => {
-    const playerName = localStorage.getItem('playerName') || null;
+    const playerName = safeGet('playerName') || null;
     const res = await api.post('/api/game/new', { mode: 'standard', draw: 1, player_name: playerName });
     state = res.state; render();
   });
@@ -91,7 +98,7 @@ function renderHUD() {
   $('#moves').textContent = state.moves;
   $('#time').textContent = state.seconds;
   $('#draw').textContent = state.draw_count;
-  const name = localStorage.getItem('playerName');
+  const name = safeGet('playerName');
   if (name) {
     const el = document.getElementById('player');
     if (el) el.textContent = name;
@@ -283,7 +290,8 @@ document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key 
 const peekBtn = document.getElementById('btn-waste-peek');
 if (peekBtn) {
   peekBtn.addEventListener('click', () => {
-    wastePeek = wastePeek === 1 ? Math.min(3, (state?.waste?.length || 0)) : 1;
+    const wlen = (state && state.waste && state.waste.length) ? state.waste.length : 0;
+    wastePeek = wastePeek === 1 ? Math.min(3, wlen) : 1;
     render();
   });
 }
@@ -324,8 +332,8 @@ function closeNameModal() { if (nameModal) nameModal.setAttribute('aria-hidden',
 function savePlayerName(ev) {
   if (ev && ev.preventDefault) ev.preventDefault();
   const val = ((inputName && inputName.value) || '').trim();
-  if (val.length < 2) { toast('Ingresa un nombre válido'); return; }
-  localStorage.setItem('playerName', val);
+  if (val.length < 1) { toast('Ingresa un nombre'); return; }
+  safeSet('playerName', val);
   closeNameModal();
   // devolver foco y arrancar partida con el nombre
   const newBtn = document.getElementById('btn-new'); if (newBtn) newBtn.focus();
@@ -344,10 +352,11 @@ if (nameModal) {
 }
 // Delegación de clicks por si el DOM cambia
 document.addEventListener('click', (e) => {
-  const t = e.target;
-  if (!(t instanceof Element)) return;
-  if (t.id === 'btn-close-name') { e.preventDefault(); closeNameModal(); }
-  if (t.id === 'btn-save-name') { e.preventDefault(); savePlayerName(e); }
+  const t = e.target || e.srcElement;
+  if (!t) return;
+  const id = t.id || (t.getAttribute ? t.getAttribute('id') : '');
+  if (id === 'btn-close-name') { e.preventDefault(); closeNameModal(); }
+  if (id === 'btn-save-name') { e.preventDefault(); savePlayerName(e); }
 });
 // cerrar modales con Escape
 document.addEventListener('keydown', (e) => {
@@ -364,8 +373,12 @@ async function initApp() {
   } catch (_) {
     await newGame();
   }
-  const existing = localStorage.getItem('playerName');
+  const existing = safeGet('playerName');
   if (!existing) openNameModal(); else renderHUD();
 }
 
-initApp();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initApp());
+} else {
+  initApp();
+}
