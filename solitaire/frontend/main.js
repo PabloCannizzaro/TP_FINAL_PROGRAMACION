@@ -314,24 +314,27 @@ const nameModal = document.getElementById('name-modal');
 const inputName = document.getElementById('player-name');
 const btnSaveName = document.getElementById('btn-save-name');
 const btnCloseName = document.getElementById('btn-close-name');
+const nameForm = document.getElementById('name-form');
 function openNameModal() {
   if (!nameModal) return;
   nameModal.setAttribute('aria-hidden', 'false');
-  setTimeout(() => { inputName?.focus(); }, 50);
+  setTimeout(() => { if (inputName) inputName.focus(); }, 50);
 }
-function closeNameModal() { nameModal?.setAttribute('aria-hidden', 'true'); }
-function savePlayerName() {
-  const val = (inputName?.value || '').trim();
+function closeNameModal() { if (nameModal) nameModal.setAttribute('aria-hidden', 'true'); }
+function savePlayerName(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  const val = ((inputName && inputName.value) || '').trim();
   if (val.length < 2) { toast('Ingresa un nombre válido'); return; }
   localStorage.setItem('playerName', val);
   closeNameModal();
   // devolver foco y arrancar partida con el nombre
-  document.getElementById('btn-new')?.focus();
+  const newBtn = document.getElementById('btn-new'); if (newBtn) newBtn.focus();
   newGame();
   renderHUD();
 }
 if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
-if (inputName) inputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerName(); });
+if (nameForm) nameForm.addEventListener('submit', savePlayerName);
+if (inputName) inputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerName(e); });
 if (btnCloseName) btnCloseName.addEventListener('click', () => closeNameModal());
 // cerrar al hacer click en overlay
 if (nameModal) {
@@ -339,6 +342,13 @@ if (nameModal) {
     if (e.target === nameModal) closeNameModal();
   });
 }
+// Delegación de clicks por si el DOM cambia
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (!(t instanceof Element)) return;
+  if (t.id === 'btn-close-name') { e.preventDefault(); closeNameModal(); }
+  if (t.id === 'btn-save-name') { e.preventDefault(); savePlayerName(e); }
+});
 // cerrar modales con Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
