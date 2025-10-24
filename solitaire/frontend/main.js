@@ -1,10 +1,21 @@
 // Improved SPA logic: better rendering, drag/drop and double-click helpers.
 const api = {
-  post: (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).then(r => r.json()),
-  get: (url) => fetch(url).then(r => r.json())
+  post: async (url, body) => {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data && data.detail ? data.detail : 'Error de red');
+    return data;
+  },
+  get: async (url) => {
+    const r = await fetch(url);
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data && data.detail ? data.detail : 'Error de red');
+    return data;
+  }
 };
 
 let state = null;
+let msgTimer = null;
 
 const SUITS = ['hearts','diamonds','clubs','spades'];
 const SUIT_SYMBOL = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
@@ -15,14 +26,14 @@ function rankStr(n) { return RANK_STR[n] || String(n); }
 
 async function newGame() {
   const res = await api.post('/api/game/new', { mode: 'standard', draw: 1 });
-  state = res.state; render();
+  state = res.state; render(); hideVictory();
 }
 
-async function draw() { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); }
-async function undo() { try { const res = await api.post('/api/game/undo'); state = res.state; render(); } catch {} }
-async function redo() { try { const res = await api.post('/api/game/redo'); state = res.state; render(); } catch {} }
+async function draw() { try { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); checkVictory(); } catch (e) { warn(e.message || 'Movimiento no válido'); } }
+async function undo() { try { const res = await api.post('/api/game/undo'); state = res.state; render(); } catch (e) { warn(e.message || 'No hay más para deshacer'); } }
+async function redo() { try { const res = await api.post('/api/game/redo'); state = res.state; render(); } catch (e) { warn(e.message || 'No hay más para rehacer'); } }
 async function hint() { const res = await api.post('/api/game/hint'); if (res.hint) highlightHint(res.hint); }
-async function autoplay() { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); }
+async function autoplay() { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); checkVictory(); }
 
 function renderHUD() {
   $('#score').textContent = state.score;
@@ -98,6 +109,19 @@ function render() {
   });
 }
 
+function warn(message) {
+  const el = document.getElementById('message');
+  el.textContent = message;
+  el.hidden = false;
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(() => { el.hidden = true; }, 2000);
+}
+
+function openModal(id) { const m = document.getElementById(id); if (m) m.hidden = false; }
+function closeModals() { document.querySelectorAll('.modal').forEach(m => m.hidden = true); }
+function checkVictory() { if (state && state.won) openModal('modal-victory'); }
+function hideVictory() { const m = document.getElementById('modal-victory'); if (m) m.hidden = true; }
+
 function onDragStart(e) {
   const el = e.target;
   const parent = el.parentElement;
@@ -121,8 +145,8 @@ async function onDropTableau(e) {
   } else {
     move = { type: 't2t', from_col: data.from_col, start_index: data.start_index, to_col };
   }
-  const res = await api.post('/api/game/move', { move });
-  state = res.state; render();
+  try { const res = await api.post('/api/game/move', { move }); state = res.state; render(); checkVictory(); }
+  catch (e) { warn(e.message || 'Movimiento ilegal'); }
 }
 
 async function onDropFoundation(e) {
@@ -141,22 +165,22 @@ async function onDropFoundation(e) {
     }
     move = { type: 't2f', from_col: data.from_col };
   }
-  const res = await api.post('/api/game/move', { move });
-  state = res.state; render();
+  try { const res = await api.post('/api/game/move', { move }); state = res.state; render(); checkVictory(); }
+  catch (e) { warn(e.message || 'Movimiento ilegal'); }
 }
 
 async function onDoubleClickTop(e) {
   const el = e.currentTarget;
   const parent = el.parentElement;
   if (parent.id === 'waste') {
-    const res = await api.post('/api/game/move', { move: { type: 'w2f' } });
-    state = res.state; render();
+    try { const res = await api.post('/api/game/move', { move: { type: 'w2f' } }); state = res.state; render(); checkVictory(); }
+    catch (e) { warn(e.message || 'Movimiento ilegal'); }
   } else if (parent.classList.contains('col')) {
     const from_col = Number(parent.dataset.col);
     const idx = Number(el.dataset.index);
     if (idx !== state.tableau[from_col].length - 1) return; // solo tope
-    const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } });
-    state = res.state; render();
+    try { const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } }); state = res.state; render(); checkVictory(); }
+    catch (e) { warn(e.message || 'Movimiento ilegal'); }
   }
 }
 
@@ -173,10 +197,26 @@ document.getElementById('btn-undo').addEventListener('click', undo);
 document.getElementById('btn-redo').addEventListener('click', redo);
 document.getElementById('btn-hint').addEventListener('click', hint);
 document.getElementById('btn-autoplay').addEventListener('click', autoplay);
+document.getElementById('btn-rules').addEventListener('click', () => openModal('modal-rules'));
+document.getElementById('btn-scores').addEventListener('click', async () => {
+  try {
+    const res = await api.get('/api/scoreboard');
+    const tbody = document.getElementById('scores-body');
+    tbody.innerHTML = '';
+    (res.items || []).forEach(row => {
+      const tr = document.createElement('tr');
+      const d = new Date((row.ts || 0) * 1000);
+      tr.innerHTML = `<td>${row.name||'Anónimo'}</td><td>${row.score}</td><td>${row.moves}</td><td>${row.seconds}</td><td>${row.draw}</td><td>${d.toLocaleString()}</td>`;
+      tbody.appendChild(tr);
+    });
+    openModal('modal-scores');
+  } catch (e) { warn('No se pudieron cargar las puntuaciones'); }
+});
+document.getElementById('btn-new2').addEventListener('click', newGame);
+document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModals));
 
 document.getElementById('stock').addEventListener('click', draw);
 document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
 
 // bootstrap
-api.get('/api/game/state').then(s => { state = s; render(); }).catch(newGame);
-
+api.get('/api/game/state').then(s => { state = s; render(); checkVictory(); }).catch(newGame);

@@ -27,6 +27,7 @@ def serialize_state(state: Dict[str, Any]) -> Dict[str, Any]:
         "score": state["score"],
         "moves": state["moves"],
         "seconds": state["seconds"],
+        "won": bool(state.get("won", False)),
     }
     return out
 
@@ -44,6 +45,6 @@ def deserialize_state(data: Dict[str, Any]) -> Dict[str, Any]:
         "score": int(data.get("score", 0)),
         "moves": int(data.get("moves", 0)),
         "seconds": int(data.get("seconds", 0)),
+        "won": bool(data.get("won", False)),
     }
     return state
-

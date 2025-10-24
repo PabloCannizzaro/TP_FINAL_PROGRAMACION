@@ -22,8 +22,11 @@
         <button id="btn-redo" title="Rehacer">Rehacer</button>
         <button id="btn-hint" title="Sugerir movimiento">Pista</button>
         <button id="btn-autoplay" title="Auto mover a fundación">Autoplay</button>
+        <button id="btn-scores" title="Ver puntuaciones" class="right">Puntuaciones</button>
+        <button id="btn-rules" title="Ver reglas" class="right">Reglas</button>
       </nav>
     </header>
+    <div id="message" class="message" role="alert" aria-live="assertive" hidden></div>
     <main>
       <section class="top">
         <div class="stock" id="stock" aria-label="Mazo" role="button" tabindex="0" title="Clic/Enter para robar"></div>
@@ -33,7 +36,36 @@
       <section class="tableau" id="tableau" aria-label="Tableau" role="grid"></section>
     </main>
     <footer class="tips">Doble clic en la carta superior para mover a fundación cuando sea válido.</footer>
+    <!-- Modals -->
+    <div id="modal-rules" class="modal" hidden>
+      <div class="modal-content">
+        <button class="close" data-close>&times;</button>
+        <h2>Reglas de Klondike</h2>
+        <ul>
+          <li>Tableau: desciende alternando colores y espacios vacíos aceptan solo Rey.</li>
+          <li>Fundaciones: ascienden por palo desde As hasta Rey.</li>
+          <li>Robar: Draw 1 o Draw 3 del mazo al descarte.</li>
+          <li>Penalizaciones: mover de mesa a fundaciones (-15), deshacer (-5), pasar por el mazo (Draw 1: -100 por ciclo, Draw 3: -20 por ciclo).</li>
+        </ul>
+      </div>
+    </div>
+    <div id="modal-victory" class="modal" hidden>
+      <div class="modal-content center">
+        <h2>¡Victoria!</h2>
+        <p>Completaste todas las fundaciones. 🎉</p>
+        <button id="btn-new2">Nueva partida</button>
+      </div>
+    </div>
+    <div id="modal-scores" class="modal" hidden>
+      <div class="modal-content">
+        <button class="close" data-close>&times;</button>
+        <h2>Tabla de puntuaciones</h2>
+        <table class="scores">
+          <thead><tr><th>Jugador</th><th>Puntos</th><th>Mov.</th><th>Seg.</th><th>Draw</th><th>Fecha</th></tr></thead>
+          <tbody id="scores-body"></tbody>
+        </table>
+      </div>
+    </div>
     <script type="module" src="/static/main.js"></script>
   </body>
   </html>
-

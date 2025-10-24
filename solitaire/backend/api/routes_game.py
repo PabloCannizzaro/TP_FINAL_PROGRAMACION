@@ -22,6 +22,7 @@ from ..core.klondike import KlondikeGame
 from ..core.serializer import serialize_state
 from ..domain.partida import Partida
 from ..domain.repositorio import RepositorioPartidasJSON
+from ..services.scoreboard import ScoreboardService
 
 
 router = APIRouter(prefix="/api")
@@ -30,6 +31,11 @@ router = APIRouter(prefix="/api")
 def _repo() -> RepositorioPartidasJSON:
     data_path = Path(__file__).resolve().parents[2] / "data" / "saves.json"
     return RepositorioPartidasJSON(data_path)
+
+
+def _scoreboard() -> ScoreboardService:
+    data_path = Path(__file__).resolve().parents[2] / "data" / "scoreboard.json"
+    return ScoreboardService(data_path)
 
 
 class GameHolder:
@@ -75,6 +81,12 @@ def post_move(payload: Dict[str, Any]) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="Movimiento ilegal")
     p.actualizar_desde_juego(g)
     _repo().actualizar(p)
+    # si ganó, registrar en scoreboard con nombre anónimo (placeholder)
+    try:
+        if g.is_won():
+            _scoreboard().add(name=payload.get("name") or "Anónimo", score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
+    except Exception:
+        pass
     return {"ok": True, "state": serialize_state(g.to_state())}
 
 
@@ -140,6 +152,12 @@ def list_saves() -> Dict[str, Any]:
     return {"items": [r.__dict__ | {"semilla": r.semilla} for r in items]}
 
 
+@router.get("/scoreboard")
+def get_scoreboard() -> Dict[str, Any]:
+    items = _scoreboard().sorted_entries()
+    return {"items": items}
+
+
 @router.get("/saves/{pid}")
 def get_save(pid: str) -> Dict[str, Any]:
     p = _repo().obtener(pid)
@@ -179,4 +197,3 @@ def update_save(pid: str, payload: Dict[str, Any]) -> Dict[str, Any]:
 def delete_save(pid: str) -> Dict[str, Any]:
     _repo().eliminar(pid)
     return {"ok": True}
-
