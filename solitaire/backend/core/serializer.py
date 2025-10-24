@@ -7,7 +7,18 @@ from .models import Card, Suit, Rank
 
 
 def serialize_pile(cards: List[Card]) -> List[dict]:
-    return [c.to_dict() for c in cards]
+    """Serializa una pila que puede venir con ``Card`` o dicts ya serializados.
+
+    Esto la hace robusta para manejar snapshots previos (historial) que ya
+    pudieron estar en formato JSON-friendly.
+    """
+    out: List[dict] = []
+    for c in cards:
+        if isinstance(c, dict):
+            out.append(c)
+        else:
+            out.append(c.to_dict())
+    return out
 
 
 def deserialize_pile(data: List[dict]) -> List[Card]:

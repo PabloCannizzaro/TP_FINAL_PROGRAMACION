@@ -1,4 +1,41 @@
 // Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
+function humanizeErrorMessage(msg, status) {
+  let s = String(msg || 'Ocurrió un error');
+  try {
+    const obj = JSON.parse(s);
+    if (obj && (obj.error || obj.detail || obj.message)) {
+      s = obj.error || obj.detail || obj.message;
+    }
+  } catch (_) {
+    // not JSON
+  }
+  const map = {
+    'Movimiento ilegal': 'Movimiento no válido.',
+    'move inválido': 'Acción inválida.',
+    'Bad Request': 'Solicitud inválida.',
+    'No hay más para deshacer': 'No hay movimientos para deshacer.',
+    'No hay más para rehacer': 'No hay movimientos para rehacer.',
+  };
+  if (map[s]) return map[s];
+  if (/^HTTP\s*\d+/.test(s)) return `Error ${status || ''}`.trim();
+  return s;
+}
+
+async function parseApiError(r) {
+  let text = '';
+  try {
+    const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+    if (ct && ct.includes('application/json')) {
+      const j = await r.json();
+      return humanizeErrorMessage(j && (j.error || j.detail || j.message) || '');
+    }
+    text = await r.text();
+  } catch (_) {
+    // ignore
+  }
+  return humanizeErrorMessage(text || `HTTP ${r.status}`, r.status);
+}
+
 const api = {
   async post(url, body) {
     const r = await fetch(url, {
@@ -6,12 +43,12 @@ const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {})
     });
-    if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
+    if (!r.ok) throw new Error(await parseApiError(r));
     return r.json();
   },
   async get(url) {
     const r = await fetch(url);
-    if (!r.ok) throw new Error((await r.text()) || `HTTP ${r.status}`);
+    if (!r.ok) throw new Error(await parseApiError(r));
     return r.json();
   }
 };
@@ -52,7 +89,8 @@ function setLoading(loading) {
 function toast(msg, kind = 'error') {
   const t = $('#toast');
   if (!t) return;
-  t.textContent = msg;
+  const m = humanizeErrorMessage(msg) || '';
+  t.textContent = m;
   t.dataset.kind = kind;
   t.hidden = false;
   setTimeout(() => { t.hidden = true; t.textContent=''; }, 2000);
