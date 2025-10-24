@@ -80,7 +80,11 @@ function safeSet(key, value) {
 async function newGame() {
   await action(async () => {
     const playerName = safeGet('playerName') || null;
-    const res = await api.post('/api/game/new', { mode: 'standard', draw: 1, player_name: playerName });
+    const params = new URLSearchParams(window.location.search);
+    const seedParam = params.get('seed');
+    const payload = { mode: 'standard', draw: 1, player_name: playerName };
+    if (seedParam && /^\d+$/.test(seedParam)) payload.seed = Number(seedParam);
+    const res = await api.post('/api/game/new', payload);
     state = res.state; render();
   });
 }
@@ -373,7 +377,8 @@ async function initApp() {
   } catch (_) {
     await newGame();
   }
-  const existing = safeGet('playerName');
+  const existing = safeGet('playerName') || new URLSearchParams(window.location.search).get('player');
+  if (existing && !safeGet('playerName')) safeSet('playerName', existing);
   if (!existing) openNameModal(); else renderHUD();
 }
 

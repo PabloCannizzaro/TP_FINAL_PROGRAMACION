@@ -14,10 +14,10 @@
         <span id="score">0</span> pts ·
         <span id="moves">0</span> mov ·
         <span id="time">0</span> s ·
-        Draw <span id="draw">1</span>
+        Roba <span id="draw">1</span>
       </div>
       <nav class="controls">
-        <button id="btn-new" title="Nueva partida (modo estándar, Draw 1)">Nuevo</button>
+        <button id="btn-new" title="Nueva partida (modo estándar, Roba 1)">Nuevo</button>
         <button id="btn-draw" title="Robar del mazo (Enter/Espacio sobre el mazo)">Robar</button>
         <button id="btn-undo" title="Deshacer">Deshacer</button>
         <button id="btn-redo" title="Rehacer">Rehacer</button>
@@ -72,14 +72,14 @@
           <h2 id="name-title">¿Cómo te llamas?</h2>
           <button id="btn-close-name" class="modal-close" aria-label="Cerrar">&times;</button>
         </header>
-        <form id="name-form" class="modal-body" novalidate onsubmit="return false">
+        <div id="name-form" class="modal-body">
           <label for="player-name" class="visually-hidden">Nombre</label>
           <input id="player-name" type="text" maxlength="32" placeholder="Tu nombre" autocomplete="name" />
           <div class="modal-actions">
             <button id="btn-save-name" type="button">Guardar</button>
           </div>
           <p class="hint">Usaremos tu nombre para registrar la puntuación de esta partida.</p>
-        </form>
+        </div>
       </div>
     </div>
     <script type="module" src="/static/main.js?v=20251024"></script>
