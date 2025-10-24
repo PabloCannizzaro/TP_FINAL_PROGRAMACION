@@ -321,6 +321,44 @@ if (rulesModal) {
   });
 }
 
+// Leaderboard modal
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const btnLeaderboard = document.getElementById('btn-leaderboard');
+const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
+async function loadLeaderboard() {
+  try {
+    const res = await api.get('/api/leaderboard');
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const items = res.items || [];
+    if (!items.length) {
+      const li = document.createElement('li'); li.textContent = 'Sin datos aún'; list.appendChild(li); return;
+    }
+    items.forEach((it) => {
+      const li = document.createElement('li');
+      li.textContent = `${it.jugador}: ${it.max_score} pts ( ${it.partidas || 1} partidas )`;
+      list.appendChild(li);
+    });
+  } catch (e) {
+    console.error(e); toast('No se pudo cargar el ranking');
+  }
+}
+if (btnLeaderboard && leaderboardModal) {
+  btnLeaderboard.addEventListener('click', async () => {
+    await loadLeaderboard();
+    leaderboardModal.setAttribute('aria-hidden', 'false');
+  });
+}
+if (btnCloseLeaderboard && leaderboardModal) {
+  btnCloseLeaderboard.addEventListener('click', () => {
+    leaderboardModal.setAttribute('aria-hidden', 'true');
+  });
+}
+if (leaderboardModal) {
+  leaderboardModal.addEventListener('click', (e) => { if (e.target === leaderboardModal) leaderboardModal.setAttribute('aria-hidden','true'); });
+}
+
 // Nombre de jugador modal
 const nameModal = document.getElementById('name-modal');
 const inputName = document.getElementById('player-name');
@@ -330,7 +368,14 @@ const nameForm = document.getElementById('name-form');
 function openNameModal() {
   if (!nameModal) return;
   nameModal.setAttribute('aria-hidden', 'false');
-  setTimeout(() => { if (inputName) inputName.focus(); }, 50);
+  setTimeout(() => {
+    if (inputName) {
+      // prefill con ?player= si existe
+      const p = new URLSearchParams(window.location.search).get('player');
+      if (p && !inputName.value) inputName.value = p;
+      inputName.focus();
+    }
+  }, 50);
 }
 function closeNameModal() { if (nameModal) nameModal.setAttribute('aria-hidden', 'true'); }
 function savePlayerName(ev) {
@@ -366,6 +411,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (rulesModal && rulesModal.getAttribute('aria-hidden') === 'false') rulesModal.setAttribute('aria-hidden', 'true');
+    if (leaderboardModal && leaderboardModal.getAttribute('aria-hidden') === 'false') leaderboardModal.setAttribute('aria-hidden','true');
     if (nameModal && nameModal.getAttribute('aria-hidden') === 'false') closeNameModal();
   }
 });
@@ -377,9 +423,9 @@ async function initApp() {
   } catch (_) {
     await newGame();
   }
-  const existing = safeGet('playerName') || new URLSearchParams(window.location.search).get('player');
-  if (existing && !safeGet('playerName')) safeSet('playerName', existing);
-  if (!existing) openNameModal(); else renderHUD();
+  // Siempre pedir el nombre al cargar/reiniciar página
+  safeSet('playerName', '');
+  openNameModal();
 }
 
 if (document.readyState === 'loading') {

@@ -23,6 +23,7 @@
         <button id="btn-redo" title="Rehacer">Rehacer</button>
         <button id="btn-hint" title="Sugerir movimiento">Pista</button>
         <button id="btn-autoplay" title="Auto mover a fundación">Autoplay</button>
+        <button id="btn-leaderboard" title="Ver mejores puntajes">Ranking</button>
         <button id="btn-rules" title="Ver reglas detalladas">Reglas</button>
       </nav>
     </header>
@@ -82,7 +83,19 @@
         </div>
       </div>
     </div>
+    <!-- Modal de ranking -->
+    <div id="leaderboard-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="leaderboard-title">
+      <div class="modal-content small" role="document">
+        <header class="modal-header">
+          <h2 id="leaderboard-title">Mejores puntajes</h2>
+          <button id="btn-close-leaderboard" class="modal-close" aria-label="Cerrar">&times;</button>
+        </header>
+        <div class="modal-body">
+          <ol id="leaderboard-list" start="1"></ol>
+          <p class="hint">Se listan jugadores previos con su mejor puntuación.</p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/static/main.js?v=20251024"></script>
   </body>
   </html>
-
