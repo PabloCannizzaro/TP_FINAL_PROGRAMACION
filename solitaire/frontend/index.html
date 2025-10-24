@@ -72,17 +72,17 @@
           <h2 id="name-title">¿Cómo te llamas?</h2>
           <button id="btn-close-name" class="modal-close" aria-label="Cerrar">&times;</button>
         </header>
-        <form id="name-form" class="modal-body">
+        <form id="name-form" class="modal-body" novalidate onsubmit="return false">
           <label for="player-name" class="visually-hidden">Nombre</label>
           <input id="player-name" type="text" maxlength="32" placeholder="Tu nombre" autocomplete="name" />
           <div class="modal-actions">
-            <button id="btn-save-name" type="submit">Guardar</button>
+            <button id="btn-save-name" type="button">Guardar</button>
           </div>
           <p class="hint">Usaremos tu nombre para registrar la puntuación de esta partida.</p>
         </form>
       </div>
     </div>
-    <script type="module" src="/static/main.js"></script>
+    <script type="module" src="/static/main.js?v=20251024"></script>
   </body>
   </html>
 
