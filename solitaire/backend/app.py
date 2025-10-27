@@ -36,6 +36,10 @@ def create_app() -> FastAPI:
 
     app.include_router(game_router)
 
+    @app.get("/health")
+    def health():  # type: ignore[unused-ignore]
+        return {"ok": True}
+
     # mount frontend under /static and serve SPA at /
     # El frontend está dentro del paquete `solitaire/frontend`
     root = Path(__file__).resolve().parents[1]  # .../solitaire
