@@ -1,24 +1,60 @@
 // Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
+function humanizeErrorMessage(msg, status) {
+  let s = String(msg || 'Ocurrió un error');
+  try {
+    const obj = JSON.parse(s);
+    if (obj && (obj.error || obj.detail || obj.message)) {
+      s = obj.error || obj.detail || obj.message;
+    }
+  } catch (_) {
+    // not JSON
+  }
+  const map = {
+    'Movimiento ilegal': 'Movimiento no válido.',
+    'move inválido': 'Acción inválida.',
+    'Bad Request': 'Solicitud inválida.',
+    'No hay más para deshacer': 'No hay movimientos para deshacer.',
+    'No hay más para rehacer': 'No hay movimientos para rehacer.',
+  };
+  if (map[s]) return map[s];
+  if (/^HTTP\s*\d+/.test(s)) return `Error ${status || ''}`.trim();
+  return s;
+}
+
+async function parseApiError(r) {
+  let text = '';
+  try {
+    const ct = (r.headers && r.headers.get && r.headers.get('content-type')) || '';
+    if (ct && ct.includes('application/json')) {
+      const j = await r.json();
+      return humanizeErrorMessage(j && (j.error || j.detail || j.message) || '');
+    }
+    text = await r.text();
+  } catch (_) {
+    // ignore
+  }
+  return humanizeErrorMessage(text || `HTTP ${r.status}`, r.status);
+}
+
 const api = {
   async post(url, body) {
-    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
-    let data = null;
-    try { data = await r.json(); } catch { data = {}; }
-    if (!r.ok) throw new Error((data && data.detail) ? data.detail : `HTTP ${r.status}`);
-    return data;
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
+    });
+    if (!r.ok) throw new Error(await parseApiError(r));
+    return r.json();
   },
   async get(url) {
     const r = await fetch(url);
-    let data = null;
-    try { data = await r.json(); } catch { data = {}; }
-    if (!r.ok) throw new Error((data && data.detail) ? data.detail : `HTTP ${r.status}`);
-    return data;
+    if (!r.ok) throw new Error(await parseApiError(r));
+    return r.json();
   }
 };
 
 let state = null;
-let msgTimer = null;
-let wastePeek = 1; // cuántas cartas del descarte mostrar (1 o hasta 3)
+let wastePeek = 1; // cuántas cartas del descarte se muestran (1 o hasta 3)
 
 const SUITS = ['hearts','diamonds','clubs','spades'];
 const SUIT_SYMBOL = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
@@ -52,22 +88,12 @@ function setLoading(loading) {
 
 function toast(msg, kind = 'error') {
   const t = $('#toast');
-  if (!t) return false;
-  t.textContent = msg;
+  if (!t) return;
+  const m = humanizeErrorMessage(msg) || '';
+  t.textContent = m;
   t.dataset.kind = kind;
   t.hidden = false;
   setTimeout(() => { t.hidden = true; t.textContent=''; }, 2000);
-  return true;
-}
-
-function warn(message) {
-  if (toast(message)) return; // usa toast si existe
-  const el = document.getElementById('message');
-  if (!el) return;
-  el.textContent = message;
-  el.hidden = false;
-  clearTimeout(msgTimer);
-  msgTimer = setTimeout(() => { el.hidden = true; }, 2000);
 }
 
 async function action(fn) {
@@ -76,30 +102,49 @@ async function action(fn) {
     await fn();
   } catch (e) {
     console.error(e);
-    warn(String(e.message || e));
+    toast(String(e.message || e));
   } finally {
     setLoading(false);
   }
 }
 
+function safeGet(key) {
+  try { return window.localStorage ? localStorage.getItem(key) : null; } catch (_) { return null; }
+}
+function safeSet(key, value) {
+  try { if (window.localStorage) localStorage.setItem(key, value); } catch (_) { /* ignore */ }
+}
+
 async function newGame() {
   await action(async () => {
-    const res = await api.post('/api/game/new', { mode: 'standard', draw: 1 });
-    state = res.state; render(); hideVictory();
+    const playerName = safeGet('playerName') || null;
+    const params = new URLSearchParams(window.location.search);
+    const seedParam = params.get('seed');
+    const payload = { mode: 'standard', draw: 1, player_name: playerName };
+    if (seedParam && /^\d+$/.test(seedParam)) payload.seed = Number(seedParam);
+    const res = await api.post('/api/game/new', payload);
+    state = res.state; render();
   });
 }
 
-async function draw() { await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); checkVictory(); }); }
+async function draw() {
+  await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); });
+}
 async function undo() { await action(async () => { const res = await api.post('/api/game/undo'); state = res.state; render(); }); }
 async function redo() { await action(async () => { const res = await api.post('/api/game/redo'); state = res.state; render(); }); }
 async function hint() { await action(async () => { const res = await api.post('/api/game/hint'); if (res.hint) highlightHint(res.hint); }); }
-async function autoplay() { await action(async () => { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); checkVictory(); }); }
+async function autoplay() { await action(async () => { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); }); }
 
 function renderHUD() {
   $('#score').textContent = state.score;
   $('#moves').textContent = state.moves;
   $('#time').textContent = state.seconds;
   $('#draw').textContent = state.draw_count;
+  const name = safeGet('playerName');
+  if (name) {
+    const el = document.getElementById('player');
+    if (el) el.textContent = name;
+  }
 }
 
 function cardEl(card) {
@@ -149,7 +194,8 @@ function render() {
     btnPeek.textContent = wastePeek === 1 ? 'Ver carta anterior' : 'Ocultar';
   }
   // stock visual: mostrar dorso si hay cartas
-  const stock = $('#stock'); stock.innerHTML = '';
+  const stock = $('#stock');
+  stock.innerHTML = '';
   if (state.stock.length) {
     const back = document.createElement('div');
     back.className = 'card face-down';
@@ -200,11 +246,6 @@ function render() {
   });
 }
 
-function openModal(id) { const m = document.getElementById(id); if (m) m.hidden = false; }
-function closeModals() { document.querySelectorAll('.modal').forEach(m => m.hidden = true); }
-function checkVictory() { if (state && state.won) openModal('modal-victory'); }
-function hideVictory() { const m = document.getElementById('modal-victory'); if (m) m.hidden = true; }
-
 function onDragStart(e) {
   const el = e.target;
   const parent = el.parentElement;
@@ -228,7 +269,10 @@ async function onDropTableau(e) {
   } else {
     move = { type: 't2t', from_col: data.from_col, start_index: data.start_index, to_col };
   }
-  await action(async () => { const res = await api.post('/api/game/move', { move }); state = res.state; render(); checkVictory(); });
+  await action(async () => {
+    const res = await api.post('/api/game/move', { move });
+    state = res.state; render();
+  });
 }
 
 async function onDropFoundation(e) {
@@ -248,19 +292,22 @@ async function onDropFoundation(e) {
     }
     move = { type: 't2f', from_col: data.from_col };
   }
-  await action(async () => { const res = await api.post('/api/game/move', { move }); state = res.state; render(); checkVictory(); });
+  await action(async () => {
+    const res = await api.post('/api/game/move', { move });
+    state = res.state; render();
+  });
 }
 
 async function onDoubleClickTop(e) {
   const el = e.currentTarget;
   const parent = el.parentElement;
   if (parent.id === 'waste') {
-    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'w2f' } }); state = res.state; render(); checkVictory(); });
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'w2f' } }); state = res.state; render(); });
   } else if (parent.classList.contains('col')) {
     const from_col = Number(parent.dataset.col);
     const idx = Number(el.dataset.index);
     if (idx !== state.tableau[from_col].length - 1) return; // solo tope
-    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } }); state = res.state; render(); checkVictory(); });
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } }); state = res.state; render(); });
   }
 }
 
@@ -272,48 +319,156 @@ function highlightHint(h) {
 }
 
 // controls
-const eNew = document.getElementById('btn-new'); if (eNew) eNew.addEventListener('click', newGame);
-const eDraw = document.getElementById('btn-draw'); if (eDraw) eDraw.addEventListener('click', draw);
-const eUndo = document.getElementById('btn-undo'); if (eUndo) eUndo.addEventListener('click', undo);
-const eRedo = document.getElementById('btn-redo'); if (eRedo) eRedo.addEventListener('click', redo);
-const eHint = document.getElementById('btn-hint'); if (eHint) eHint.addEventListener('click', hint);
-const eAuto = document.getElementById('btn-autoplay'); if (eAuto) eAuto.addEventListener('click', autoplay);
-const eRules = document.getElementById('btn-rules'); if (eRules) eRules.addEventListener('click', () => openModal('modal-rules'));
-const eScores = document.getElementById('btn-scores'); if (eScores) eScores.addEventListener('click', async () => {
-  await action(async () => {
-    const res = await api.get('/api/scoreboard');
-    const tbody = document.getElementById('scores-body');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    (res.items || []).forEach(row => {
-      const tr = document.createElement('tr');
-      const d = new Date((row.ts || 0) * 1000);
-      tr.innerHTML = `<td>${row.name||'Anónimo'}</td><td>${row.score}</td><td>${row.moves}</td><td>${row.seconds}</td><td>${row.draw}</td><td>${d.toLocaleString()}</td>`;
-      tbody.appendChild(tr);
-    });
-    openModal('modal-scores');
-  });
-});
+document.getElementById('btn-new').addEventListener('click', newGame);
+document.getElementById('btn-draw').addEventListener('click', draw);
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+document.getElementById('btn-hint').addEventListener('click', hint);
+document.getElementById('btn-autoplay').addEventListener('click', autoplay);
 
-const eNew2 = document.getElementById('btn-new2'); if (eNew2) eNew2.addEventListener('click', newGame);
-document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModals));
-
-const eStock = document.getElementById('stock'); if (eStock) {
-  eStock.addEventListener('click', draw);
-  eStock.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
-}
-
-// accesibilidad: cerrar modales con Escape
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModals(); });
+document.getElementById('stock').addEventListener('click', draw);
+document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
 
 // waste peek toggle
 const peekBtn = document.getElementById('btn-waste-peek');
 if (peekBtn) {
   peekBtn.addEventListener('click', () => {
-    wastePeek = wastePeek === 1 ? Math.min(3, (state?.waste?.length || 0)) : 1;
+    const wlen = (state && state.waste && state.waste.length) ? state.waste.length : 0;
+    wastePeek = wastePeek === 1 ? Math.min(3, wlen) : 1;
     render();
   });
 }
 
-// bootstrap
-api.get('/api/game/state').then(s => { state = s; render(); checkVictory(); }).catch(newGame);
+// Reglas modal
+const rulesModal = document.getElementById('rules-modal');
+const btnRules = document.getElementById('btn-rules');
+const btnCloseRules = document.getElementById('btn-close-rules');
+if (btnRules && rulesModal) {
+  btnRules.addEventListener('click', () => {
+    rulesModal.setAttribute('aria-hidden', 'false');
+  });
+}
+if (btnCloseRules && rulesModal) {
+  btnCloseRules.addEventListener('click', () => {
+    rulesModal.setAttribute('aria-hidden', 'true');
+  });
+}
+// cerrar reglas al hacer click fuera del contenido
+if (rulesModal) {
+  rulesModal.addEventListener('click', (e) => {
+    if (e.target === rulesModal) rulesModal.setAttribute('aria-hidden', 'true');
+  });
+}
+
+// Leaderboard modal
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const btnLeaderboard = document.getElementById('btn-leaderboard');
+const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
+async function loadLeaderboard() {
+  try {
+    const res = await api.get('/api/leaderboard');
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const items = res.items || [];
+    if (!items.length) {
+      const li = document.createElement('li'); li.textContent = 'Sin datos aún'; list.appendChild(li); return;
+    }
+    items.forEach((it) => {
+      const li = document.createElement('li');
+      li.textContent = `${it.jugador}: ${it.max_score} pts ( ${it.partidas || 1} partidas )`;
+      list.appendChild(li);
+    });
+  } catch (e) {
+    console.error(e); toast('No se pudo cargar el ranking');
+  }
+}
+if (btnLeaderboard && leaderboardModal) {
+  btnLeaderboard.addEventListener('click', async () => {
+    await loadLeaderboard();
+    leaderboardModal.setAttribute('aria-hidden', 'false');
+  });
+}
+if (btnCloseLeaderboard && leaderboardModal) {
+  btnCloseLeaderboard.addEventListener('click', () => {
+    leaderboardModal.setAttribute('aria-hidden', 'true');
+  });
+}
+if (leaderboardModal) {
+  leaderboardModal.addEventListener('click', (e) => { if (e.target === leaderboardModal) leaderboardModal.setAttribute('aria-hidden','true'); });
+}
+
+// Nombre de jugador modal
+const nameModal = document.getElementById('name-modal');
+const inputName = document.getElementById('player-name');
+const btnSaveName = document.getElementById('btn-save-name');
+const btnCloseName = document.getElementById('btn-close-name');
+const nameForm = document.getElementById('name-form');
+function openNameModal() {
+  if (!nameModal) return;
+  nameModal.setAttribute('aria-hidden', 'false');
+  setTimeout(() => {
+    if (inputName) {
+      // prefill con ?player= si existe
+      const p = new URLSearchParams(window.location.search).get('player');
+      if (p && !inputName.value) inputName.value = p;
+      inputName.focus();
+    }
+  }, 50);
+}
+function closeNameModal() { if (nameModal) nameModal.setAttribute('aria-hidden', 'true'); }
+function savePlayerName(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  const val = ((inputName && inputName.value) || '').trim();
+  if (val.length < 1) { toast('Ingresa un nombre'); return; }
+  safeSet('playerName', val);
+  closeNameModal();
+  // devolver foco y arrancar partida con el nombre
+  const newBtn = document.getElementById('btn-new'); if (newBtn) newBtn.focus();
+  newGame();
+  renderHUD();
+}
+if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
+if (nameForm) nameForm.addEventListener('submit', savePlayerName);
+if (inputName) inputName.addEventListener('keydown', (e) => { if (e.key === 'Enter') savePlayerName(e); });
+if (btnCloseName) btnCloseName.addEventListener('click', () => closeNameModal());
+// cerrar al hacer click en overlay
+if (nameModal) {
+  nameModal.addEventListener('click', (e) => {
+    if (e.target === nameModal) closeNameModal();
+  });
+}
+// Delegación de clicks por si el DOM cambia
+document.addEventListener('click', (e) => {
+  const t = e.target || e.srcElement;
+  if (!t) return;
+  const id = t.id || (t.getAttribute ? t.getAttribute('id') : '');
+  if (id === 'btn-close-name') { e.preventDefault(); closeNameModal(); }
+  if (id === 'btn-save-name') { e.preventDefault(); savePlayerName(e); }
+});
+// cerrar modales con Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (rulesModal && rulesModal.getAttribute('aria-hidden') === 'false') rulesModal.setAttribute('aria-hidden', 'true');
+    if (leaderboardModal && leaderboardModal.getAttribute('aria-hidden') === 'false') leaderboardModal.setAttribute('aria-hidden','true');
+    if (nameModal && nameModal.getAttribute('aria-hidden') === 'false') closeNameModal();
+  }
+});
+
+async function initApp() {
+  try {
+    state = await api.get('/api/game/state');
+    render();
+  } catch (_) {
+    await newGame();
+  }
+  // Siempre pedir el nombre al cargar/reiniciar página
+  safeSet('playerName', '');
+  openNameModal();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initApp());
+} else {
+  initApp();
+}

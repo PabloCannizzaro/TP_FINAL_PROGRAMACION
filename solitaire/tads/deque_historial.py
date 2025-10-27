@@ -27,6 +27,15 @@ class HistorialMovimientos(Generic[T]):
         self._undos.append(item)
         self._redos.clear()
 
+    def push_undo_preserve_redo(self, item: T) -> None:
+        """Push onto undo stack without clearing redo.
+
+        Útil para operaciones de "rehacer" donde no queremos descartar el
+        resto del historial de redo.
+        """
+
+        self._undos.append(item)
+
     def can_undo(self) -> bool:
         return len(self._undos) > 0
 

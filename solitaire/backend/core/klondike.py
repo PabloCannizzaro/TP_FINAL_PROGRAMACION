@@ -431,7 +431,9 @@ class KlondikeGame:
         if not nxt:
             return False
         # push actual a undo
-        self.history.push_undo(serialize_state(self.to_state()))
+        # Al rehacer, NO debemos limpiar la pila de redo. Usamos el método que
+        # preserva el historial de redo para permitir rehacer múltiples pasos.
+        self.history.push_undo_preserve_redo(serialize_state(self.to_state()))
         self.from_state(nxt)
         return True
 

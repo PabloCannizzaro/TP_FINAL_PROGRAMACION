@@ -60,8 +60,15 @@ def new_game(payload: Dict[str, Any]) -> Dict[str, Any]:
     mode = str(payload.get("mode", "standard"))
     draw = int(payload.get("draw", 1))
     seed = payload.get("seed")
+    player_name = payload.get("player_name")
     pid = str(uuid.uuid4())
-    p = Partida.nueva(id=pid, modo=mode, draw_count=draw, seed=int(seed) if seed is not None else None)
+    p = Partida.nueva(
+        id=pid,
+        modo=mode,
+        draw_count=draw,
+        seed=int(seed) if seed is not None else None,
+        jugador=str(player_name) if player_name else None,
+    )
     g = KlondikeGame(mode=mode, draw_count=draw, seed=p.semilla)
     holder.game, holder.partida = g, p
     _repo().crear(p)
@@ -197,3 +204,26 @@ def update_save(pid: str, payload: Dict[str, Any]) -> Dict[str, Any]:
 def delete_save(pid: str) -> Dict[str, Any]:
     _repo().eliminar(pid)
     return {"ok": True}
+
+
+@router.get("/leaderboard")
+def get_leaderboard(limit: int = 50) -> Dict[str, Any]:
+    """Retorna jugadores anteriores con su mejor puntuación.
+
+    Se calcula a partir de partidas persistidas en ``data/saves.json``.
+    """
+
+    items = _repo().listar()
+    best: Dict[str, Dict[str, Any]] = {}
+    for p in items:
+        if not p.jugador:
+            continue
+        prev = best.get(p.jugador)
+        cand = {"jugador": p.jugador, "max_score": int(p.puntaje), "partidas": 1}
+        if prev is None or cand["max_score"] > prev["max_score"]:
+            best[p.jugador] = cand
+        else:
+            # actualizar contador de partidas
+            prev["partidas"] += 1
+    ordered = sorted(best.values(), key=lambda x: (-x["max_score"], x["jugador"]))[:limit]
+    return {"items": ordered}
