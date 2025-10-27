@@ -519,3 +519,74 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+// --- UI decorations: emojis in buttons + beginner-friendly rules ---
+(function () {
+  function emoji(cp) { try { return String.fromCodePoint(cp); } catch { return ''; } }
+  function decorateButtons() {
+    const set = (id, sym) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const label = (el.textContent || '').trim();
+      el.innerHTML = `<span class="emoji" aria-hidden="true">${sym}</span><span class="label">${label}</span>`;
+      el.classList.add('btn-stacked');
+    };
+    set('btn-new', emoji(0x1F195));        // 🆕
+    set('btn-draw', emoji(0x1F0CF));       // 🃏
+    set('btn-undo', String.fromCharCode(0x21A9)); // ↩
+    set('btn-redo', String.fromCharCode(0x21AA)); // ↪
+    set('btn-hint', emoji(0x1F4A1));       // 💡
+    set('btn-autoplay', emoji(0x1F916));   // 🤖
+    set('btn-leaderboard', emoji(0x1F3C6)); // 🏆
+    set('btn-scores', emoji(0x1F3C6));     // 🏆 (compat)
+    set('btn-rules', emoji(0x1F4D8));      // 📘
+    set('btn-waste-peek', emoji(0x1F440)); // 👀
+  }
+  function enhanceRules() {
+    const modal = document.getElementById('rules-modal');
+    if (!modal) return;
+    const body = modal.querySelector('.modal-body');
+    if (!body) return;
+    body.innerHTML = `
+      <h3>🎯 Objetivo</h3>
+      <p>Completar las 4 fundaciones ordenando cada palo de As (A) a Rey (K).</p>
+      <h3>🧩 Componentes</h3>
+      <ul>
+        <li><strong>Mazo</strong> y <strong>Descarte</strong>: roba 1 carta por clic.</li>
+        <li><strong>Tableau</strong> (7 columnas): construye en <em>orden descendente</em> alternando <em>colores</em>.</li>
+        <li><strong>Fundaciones</strong> (4 pilas): una por palo, en <em>orden ascendente</em> A→K.</li>
+      </ul>
+      <h3>🚀 Cómo jugar (paso a paso)</h3>
+      <ol>
+        <li>Revelá cartas robando del mazo cuando te trabes.</li>
+        <li>Mové cartas entre columnas: deben alternar color y bajar un rango (p.ej. 7♣ sobre 8♥).</li>
+        <li>Un espacio vacío del tableau acepta solo un Rey o una cadena que empiece en Rey.</li>
+        <li>Pasá cartas a fundación: mismo palo y <em>siguiente valor</em> exacto (p.ej. 5♦ sobre 4♦).</li>
+        <li>Doble clic sobre la carta superior intenta enviarla automáticamente a su fundación.</li>
+      </ol>
+      <h3>✅ Movimientos válidos</h3>
+      <ul>
+        <li><strong>Tableau → Tableau</strong>: color alterno y un rango menor (se permiten cadenas boca arriba).</li>
+        <li><strong>Tableau/Waste → Fundación</strong>: mismo palo y un rango mayor.</li>
+        <li><strong>Reciclar mazo</strong>: cuando el mazo se vacía, el descarte se da vuelta y vuelve al mazo.</li>
+      </ul>
+      <h3>💡 Consejos</h3>
+      <ul>
+        <li>Prioriza liberar cartas boca abajo en el tableau.</li>
+        <li>No ocupes un hueco vacío sin tener un Rey disponible.</li>
+        <li>Usá <strong>Pista</strong> si te trabas.</li>
+      </ul>
+      <h3>🏆 Puntuación</h3>
+      <ul>
+        <li>+10 a fundación; +5 descarte→tableau; +3 entre columnas.</li>
+        <li>−15 tableau→fundación (penalización); −100 reciclar (Draw 1) / −20 (Draw 3); −5 deshacer.</li>
+      </ul>
+    `;
+  }
+  function applyDecorations() { try { decorateButtons(); enhanceRules(); } catch (_) {} }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyDecorations);
+  } else {
+    applyDecorations();
+  }
+})();
