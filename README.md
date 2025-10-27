@@ -1,5 +1,6 @@
 Klondike Solitaire (FastAPI + Web)
 
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
 
 Despliegue con 1 click en Render usando el blueprint `render.yaml` incluido en el repo. El servicio instala dependencias y ejecuta `uvicorn` con el puerto que asigna Render.
@@ -55,6 +56,11 @@ Docker
 
 - Local: `docker compose up --build`
 - App en `http://localhost:8000/`
+
+Despliegue en Railway
+
+- Usa el botón de este README (Deploy on Railway). No requiere configuración adicional: `Procfile` ya expone el proceso web con Uvicorn y Railway inyecta `PORT`.
+- Salud sugerida: `GET /api/game/state`.
 
 Despliegue en Render
 

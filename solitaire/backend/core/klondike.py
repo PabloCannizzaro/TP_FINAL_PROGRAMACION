@@ -398,7 +398,12 @@ class KlondikeGame:
         while applied < limit:
             moved = False
             # waste -> foundation
-            while self.move_waste_to_foundation():
+            while True:
+                try:
+                    if not self.move_waste_to_foundation():
+                        break
+                except ValueError:
+                    break
                 moved = True
                 applied += 1
             # tableau tops -> foundation
@@ -406,7 +411,11 @@ class KlondikeGame:
             while progress:
                 progress = False
                 for i in range(7):
-                    if self.move_tableau_to_foundation(i):
+                    try:
+                        ok = self.move_tableau_to_foundation(i)
+                    except ValueError:
+                        ok = False
+                    if ok:
                         progress = True
                         moved = True
                         applied += 1
