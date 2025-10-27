@@ -36,6 +36,51 @@ async function parseApiError(r) {
   return humanizeErrorMessage(text || `HTTP ${r.status}`, r.status);
 }
 
+// Añade emoji arriba del texto de cada botón
+function decorateButtons() {
+  const set = (id, emoji) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const label = (el.textContent || '').trim();
+    el.innerHTML = `<span class="emoji" aria-hidden="true">${emoji}</span><span class="label">${label}</span>`;
+    el.classList.add('btn-stacked');
+  };
+  set('btn-new', '🆕');
+  set('btn-draw', '🃏');
+  set('btn-undo', '↩️');
+  set('btn-redo', '↪️');
+  set('btn-hint', '💡');
+  set('btn-autoplay', '🤖');
+  set('btn-leaderboard', '🏆');
+  set('btn-scores', '🏆'); // compat si existe
+  set('btn-rules', '📘');
+  set('btn-waste-peek', '👀');
+}
+
+// Mejora el contenido del modal de reglas añadiendo un resumen claro
+function enhanceRulesModal() {
+  const modal = document.getElementById('rules-modal');
+  if (!modal) return;
+  const body = modal.querySelector('.modal-body');
+  if (!body) return;
+  if (body.querySelector('[data-enhanced]')) return; // evitar duplicar
+  const div = document.createElement('div');
+  div.setAttribute('data-enhanced', 'true');
+  div.innerHTML = `
+    <p><strong>Resumen claro</strong>:</p>
+    <ul>
+      <li>Para mover a fundación: mismo palo y siguiente valor (A→2→…→K).</li>
+      <li>Para mover a columna: color alterno y un valor menor.</li>
+      <li>Los huecos del tableau aceptan solo un Rey (o cadena que inicie en Rey).</li>
+      <li>Si te trabas, roba del mazo y vuelve a intentar.</li>
+    </ul>
+  `;
+  body.appendChild(div);
+}
+
+decorateButtons();
+enhanceRulesModal();
+
 const api = {
   async post(url, body) {
     const r = await fetch(url, {
@@ -191,7 +236,9 @@ function render() {
   const btnPeek = $('#btn-waste-peek');
   if (btnPeek) {
     btnPeek.disabled = wlen <= 1;
-    btnPeek.textContent = wastePeek === 1 ? 'Ver carta anterior' : 'Ocultar';
+    const lbl = btnPeek.querySelector('.label');
+    if (lbl) lbl.textContent = wastePeek === 1 ? 'Ver carta anterior' : 'Ocultar';
+    else btnPeek.textContent = wastePeek === 1 ? 'Ver carta anterior' : 'Ocultar';
   }
   // stock visual: mostrar dorso si hay cartas
   const stock = $('#stock');
