@@ -237,17 +237,20 @@ class KlondikeGame:
         origen = self.tableau[from_col]
         destino = self.tableau[to_col]
         if start_index < 0 or start_index >= len(origen._cartas):
-            return False
+            raise ValueError("Índice inicial fuera de rango")
         subpila = origen._cartas[start_index:]
         if not subpila or not subpila[0].face_up:
-            return False
+            raise ValueError("No se puede mover carta(s) boca abajo")
         # validar cadena descendente y alternando colores
         for i in range(len(subpila) - 1):
             a, b = subpila[i], subpila[i + 1]
             if not (a.rank == Rank(b.rank + 1) and a.suit.color != b.suit.color and b.face_up):
-                return False
+                raise ValueError("La cadena debe descender alternando colores y estar descubierta")
         if not self._can_place_on_tableau(destino, subpila[0]):
-            return False
+            top = destino.ver_tope()
+            if top is None and subpila[0].rank != Rank.REY:
+                raise ValueError("Solo un Rey puede ocupar una columna vacía")
+            raise ValueError("Debe alternar color y ser un rango menor por uno")
         # aplicar
         destino._cartas.extend(subpila)
         del origen._cartas[start_index:]
@@ -259,11 +262,16 @@ class KlondikeGame:
     def move_tableau_to_foundation(self, from_col: int) -> bool:
         origen = self.tableau[from_col]
         top = origen.ver_tope()
-        if not top or not top.face_up:
-            return False
+        if not top:
+            raise ValueError("No hay carta para mover en esa columna")
+        if not top.face_up:
+            raise ValueError("Solo se pueden mover cartas descubiertas")
         dest = self.foundations[top.suit.value]
         if not self._can_place_on_foundation(dest, top):
-            return False
+            ftop = dest.ver_tope()
+            if ftop is None and top.rank != Rank.AS:
+                raise ValueError("Debe ser un As para iniciar la fundación")
+            raise ValueError("Debe ser del mismo palo y un rango superior")
         dest.apilar(top)
         origen.desapilar()
         self._flip_top_if_needed(origen)
@@ -275,10 +283,13 @@ class KlondikeGame:
     def move_waste_to_tableau(self, to_col: int) -> bool:
         top = self.waste.ver_tope()
         if not top:
-            return False
+            raise ValueError("No hay carta en el descarte")
         dest = self.tableau[to_col]
         if not self._can_place_on_tableau(dest, top):
-            return False
+            dtop = dest.ver_tope()
+            if dtop is None and top.rank != Rank.REY:
+                raise ValueError("Solo un Rey puede ocupar una columna vacía")
+            raise ValueError("Debe alternar color y ser un rango menor por uno")
         dest.apilar(top)
         self.waste.desapilar()
         self.scoring.add_points(5)
@@ -288,10 +299,13 @@ class KlondikeGame:
     def move_waste_to_foundation(self) -> bool:
         top = self.waste.ver_tope()
         if not top:
-            return False
+            raise ValueError("No hay carta en el descarte")
         dest = self.foundations[top.suit.value]
         if not self._can_place_on_foundation(dest, top):
-            return False
+            ftop = dest.ver_tope()
+            if ftop is None and top.rank != Rank.AS:
+                raise ValueError("Debe ser un As para iniciar la fundación")
+            raise ValueError("Debe ser del mismo palo y un rango superior")
         dest.apilar(top)
         self.waste.desapilar()
         self.scoring.add_points(10)
@@ -313,20 +327,25 @@ class KlondikeGame:
         mtype = move.get("type")
         self._snapshot_for_undo()
         ok = False
-        if mtype == MoveType.DRAW.value:
-            ok = self.draw_from_stock()
-        elif mtype == MoveType.TABLEAU_TO_TABLEAU.value:
-            ok = self.move_tableau_to_tableau(int(move["from_col"]), int(move["start_index"]), int(move["to_col"]))
-        elif mtype == MoveType.TABLEAU_TO_FOUNDATION.value:
-            ok = self.move_tableau_to_foundation(int(move["from_col"]))
-        elif mtype == MoveType.WASTE_TO_TABLEAU.value:
-            ok = self.move_waste_to_tableau(int(move["to_col"]))
-        elif mtype == MoveType.WASTE_TO_FOUNDATION.value:
-            ok = self.move_waste_to_foundation()
-        else:
-            # movimiento desconocido, descartar snapshot
+        try:
+            if mtype == MoveType.DRAW.value:
+                ok = self.draw_from_stock()
+            elif mtype == MoveType.TABLEAU_TO_TABLEAU.value:
+                ok = self.move_tableau_to_tableau(int(move["from_col"]), int(move["start_index"]), int(move["to_col"]))
+            elif mtype == MoveType.TABLEAU_TO_FOUNDATION.value:
+                ok = self.move_tableau_to_foundation(int(move["from_col"]))
+            elif mtype == MoveType.WASTE_TO_TABLEAU.value:
+                ok = self.move_waste_to_tableau(int(move["to_col"]))
+            elif mtype == MoveType.WASTE_TO_FOUNDATION.value:
+                ok = self.move_waste_to_foundation()
+            else:
+                # movimiento desconocido, descartar snapshot
+                _ = self.history.pop_undo()
+                return False
+        except ValueError:
+            # revertir snapshot si el movimiento fue ilegal con explicación
             _ = self.history.pop_undo()
-            return False
+            raise
 
         if not ok:
             # revertir snapshot si no se pudo

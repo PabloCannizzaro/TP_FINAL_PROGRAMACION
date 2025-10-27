@@ -26,11 +26,13 @@ def create_app() -> FastAPI:
     # Unified error handling to ensure consistent JSON errors
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):  # type: ignore[override]
-        return JSONResponse(status_code=exc.status_code, content={"error": str(exc.detail)})
+        # Use 'detail' so frontend displays messages in toast
+        return JSONResponse(status_code=exc.status_code, content={"detail": str(exc.detail)})
 
     @app.exception_handler(ValueError)
     async def value_error_handler(request: Request, exc: ValueError):  # type: ignore[override]
-        return JSONResponse(status_code=400, content={"error": str(exc) or "Bad Request"})
+        # Map ValueError to 400 with human-readable detail
+        return JSONResponse(status_code=400, content={"detail": str(exc) or "Bad Request"})
 
     app.include_router(game_router)
 

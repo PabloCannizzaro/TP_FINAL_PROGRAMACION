@@ -4,6 +4,7 @@ Runs the FastAPI backend and serves the SPA frontend.
 """
 from __future__ import annotations
 
+import os
 import uvicorn
 
 
@@ -16,9 +17,13 @@ def main() -> None:
     """
     from .backend.app import create_app
 
-    uvicorn.run(create_app(), host="0.0.0.0", port=8000, reload=False)
+    port_str = os.environ.get("PORT", "8000")
+    try:
+        port = int(port_str)
+    except Exception:
+        port = 8000
+    uvicorn.run(create_app(), host="0.0.0.0", port=port, reload=False)
 
 
 if __name__ == "__main__":
     main()
-

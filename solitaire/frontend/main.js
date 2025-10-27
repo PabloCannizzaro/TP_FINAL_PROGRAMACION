@@ -243,6 +243,7 @@ async function onDropFoundation(e) {
     if (data.start_index !== topLen - 1) {
       e.currentTarget.classList.add('invalid');
       setTimeout(() => e.currentTarget.classList.remove('invalid'), 400);
+      try { warn('Solo la carta superior puede moverse a la fundación'); } catch {}
       return;
     }
     move = { type: 't2f', from_col: data.from_col };
