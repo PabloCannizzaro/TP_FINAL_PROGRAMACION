@@ -186,6 +186,7 @@ function describeHint(h) {
   try {
     if (!h || !state) return '';
     if (h.type === 'draw') return 'Roba una carta del mazo.';
+    if (h.type === 'recycle') return 'Recicla el descarte al mazo (click en Robar).';
     if (h.type === 'w2f') {
       const top = state.waste[state.waste.length - 1];
       return top ? `Mueve ${cardNameES(top)} a su fundación.` : 'Mueve la carta del descarte a fundación.';
@@ -411,7 +412,7 @@ async function onDoubleClickTop(e) {
 
 function highlightHint(h) {
   if (!h) return;
-  if (h.type === 'draw') { $('#btn-draw').classList.add('droptarget'); setTimeout(() => $('#btn-draw').classList.remove('droptarget'), 600); return; }
+  if (h.type === 'draw' || h.type === 'recycle') { $('#btn-draw').classList.add('droptarget'); setTimeout(() => $('#btn-draw').classList.remove('droptarget'), 600); return; }
   if (h.type === 'w2f' || h.type === 'w2t') { $('#waste').classList.add('droptarget'); setTimeout(() => $('#waste').classList.remove('droptarget'), 600); return; }
   if (h.type === 't2f' || h.type === 't2t') { const sel = h.from_col != null ? `.col[data-col="${h.from_col}"]` : '.col'; const col = document.querySelector(sel); if (col) { col.classList.add('droptarget'); setTimeout(() => col.classList.remove('droptarget'), 600);} }
 }

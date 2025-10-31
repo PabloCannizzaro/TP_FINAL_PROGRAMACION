@@ -19,6 +19,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, HTTPException
 
 from ..core.klondike import KlondikeGame
+from ..core.hints import hint as compute_hint, hints as compute_hints
 from ..core.serializer import serialize_state
 from ..domain.partida import Partida
 from ..domain.repositorio import RepositorioPartidasJSON
@@ -102,7 +103,9 @@ def post_hint() -> Dict[str, Any]:
     holder.ensure()
     g = holder.game
     assert g
-    h = g.hint()
+    # Usar versiones puras basadas en el estado serializado
+    state = serialize_state(g.to_state())
+    h = compute_hint(state)
     return {"hint": h}
 
 
