@@ -99,6 +99,8 @@ const api = {
 };
 
 let state = null;
+// Mostrar mensaje de victoria solo una vez por partida
+let winNotified = false;
 let wastePeek = 1; // cuántas cartas del descarte se muestran (1 o hasta 3)
 
 const SUITS = ['hearts','diamonds','clubs','spades'];
@@ -168,6 +170,8 @@ async function newGame() {
     const payload = { mode: 'standard', draw: 1, player_name: playerName };
     if (seedParam && /^\d+$/.test(seedParam)) payload.seed = Number(seedParam);
     const res = await api.post('/api/game/new', payload);
+    // reiniciar bandera de victoria para nueva partida
+    winNotified = false;
     state = res.state; render();
   });
 }
@@ -215,6 +219,11 @@ function cardEl(card) {
 function render() {
   if (!state) return;
   renderHUD();
+  // Mostrar mensaje cuando el backend confirme victoria
+  if (state.won && !winNotified) {
+    try { toast('¡Victoria! Has completado las fundaciones.', 'success'); } catch {}
+    winNotified = true;
+  }
   // waste (mostrar 1 o peek de la anterior con offset)
   const waste = $('#waste'); waste.innerHTML = '';
   const wlen = state.waste.length;
