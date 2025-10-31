@@ -173,6 +173,42 @@ def hints(state: Dict[str, Any], limit: int = 20) -> List[Move]:
         elif len(waste) > 0:
             out.append({"type": "recycle", "score": 5, "explain": "Reciclar descarte al mazo"})
 
+    # Enriquecer metadatos para resaltar origen y destino en la UI
+    enriched: List[Move] = []
+    for m in out:
+        t = m.get("type")
+        if t == "w2f":
+            m.setdefault("from_zone", "waste")
+            wtop = waste[-1] if waste else None
+            suit = str((wtop or {}).get("suit", ""))
+            if suit:
+                m.setdefault("to_foundation", suit)
+            m.setdefault("explain", "Del descarte a la fundación")
+        elif t == "t2f":
+            m.setdefault("explain", "Superior a la fundación")
+            try:
+                fc = int(m.get("from_col", -1))
+            except Exception:
+                fc = -1
+            if 0 <= fc < len(tableau) and tableau[fc]:
+                suit = str(tableau[fc][-1].get("suit", ""))
+                if suit:
+                    m.setdefault("to_foundation", suit)
+        elif t == "w2t":
+            m.setdefault("from_zone", "waste")
+            m.setdefault("explain", "Del descarte a una columna")
+        elif t == "t2t":
+            m.setdefault("explain", m.get("explain") or "Mueve cadena")
+        elif t == "draw":
+            m.setdefault("from_zone", "stock")
+            m.setdefault("explain", "Robar del mazo")
+        elif t == "recycle":
+            m.setdefault("from_zone", "waste")
+            m.setdefault("to_zone", "stock")
+            m.setdefault("explain", "Reciclar descarte al mazo")
+        enriched.append(m)
+    out = enriched
+
     # Ordenar por score descendente con desempates menores (tipo estable)
     out.sort(key=lambda m: (int(m.get("score", 0)), m.get("type", "")), reverse=True)
     if limit is not None and limit > 0:
@@ -184,4 +220,3 @@ def hint(state: Dict[str, Any]) -> Optional[Move]:
     """Primera sugerencia disponible o ``None`` si no hay jugadas."""
     lst = hints(state, limit=1)
     return lst[0] if lst else None
-

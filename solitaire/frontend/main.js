@@ -412,9 +412,14 @@ async function onDoubleClickTop(e) {
 
 function highlightHint(h) {
   if (!h) return;
-  if (h.type === 'draw' || h.type === 'recycle') { $('#btn-draw').classList.add('droptarget'); setTimeout(() => $('#btn-draw').classList.remove('droptarget'), 600); return; }
-  if (h.type === 'w2f' || h.type === 'w2t') { $('#waste').classList.add('droptarget'); setTimeout(() => $('#waste').classList.remove('droptarget'), 600); return; }
-  if (h.type === 't2f' || h.type === 't2t') { const sel = h.from_col != null ? `.col[data-col="${h.from_col}"]` : '.col'; const col = document.querySelector(sel); if (col) { col.classList.add('droptarget'); setTimeout(() => col.classList.remove('droptarget'), 600);} }
+  const flash = (sel) => { const el = document.querySelector(sel); if (el) { el.classList.add('droptarget'); setTimeout(() => el.classList.remove('droptarget'), 600); } };
+  if (h.type === 'draw' || h.type === 'recycle') { flash('#btn-draw'); return; }
+  // Origen
+  if (h.from_zone === 'waste' || h.type === 'w2f' || h.type === 'w2t') flash('#waste');
+  if (h.from_col != null) flash(`.col[data-col="${h.from_col}"]`);
+  // Destino
+  if (h.to_col != null) flash(`.col[data-col="${h.to_col}"]`);
+  if (h.to_foundation) flash(`.foundation[data-suit="${h.to_foundation}"]`);
 }
 
 // controls
