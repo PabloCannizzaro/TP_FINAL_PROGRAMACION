@@ -78,8 +78,8 @@ function enhanceRulesModal() {
   body.appendChild(div);
 }
 
-decorateButtons();
-enhanceRulesModal();
+// Nota: la decoración de botones y reglas se aplica más abajo
+// en un bloque IIFE único para evitar duplicaciones de emoji.
 
 const api = {
   async post(url, body) {
