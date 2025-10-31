@@ -188,7 +188,7 @@ function renderHUD() {
   $('#score').textContent = state.score;
   $('#moves').textContent = state.moves;
   $('#time').textContent = state.seconds;
-  $('#draw').textContent = state.draw_count;
+  const de = $('#draw'); if (de) de.textContent = state.draw_count;
   const name = safeGet('playerName');
   if (name) {
     const el = document.getElementById('player');
