@@ -1,7 +1,7 @@
-"""Abstracciones del motor de juego (sin I/O).
+﻿"""Abstracciones del motor de juego (sin I/O).
 
 Define la clase abstracta ``PilaAbstracta`` para las distintas pilas del
-solitario (fundación, tableau, descarte, mazo).
+solitario (fundaciÃ³n, tableau, descarte, mazo).
 """
 from __future__ import annotations
 
@@ -12,31 +12,31 @@ from .models import Card
 
 
 class PilaAbstracta(ABC):
-    """Interfaz común para pilas del juego.
+    """Interfaz comÃºn para pilas del juego.
 
     Cada pila mantiene internamente una lista de ``Card`` y define reglas
-    específicas para admitir o no la recepción de cartas.
+    especÃ­ficas para admitir o no la recepciÃ³n de cartas.
     """
 
     def __init__(self, cartas: Optional[Iterable[Card]] = None) -> None:
         self._cartas: List[Card] = list(cartas) if cartas else []
 
     def apilar(self, carta: Card) -> None:
-        """Coloca una carta en la parte superior, si es válida."""
+        """Coloca una carta en la parte superior, si es vÃ¡lida."""
 
         if not self.puede_recibir_carta(carta):
-            raise ValueError("Movimiento inválido para esta pila")
+            raise ValueError("Movimiento invÃ¡lido para esta pila")
         self._cartas.append(carta)
 
     def desapilar(self) -> Card:
         """Quita y retorna la carta superior."""
 
         if not self._cartas:
-            raise ValueError("Pila vacía")
+            raise ValueError("Pila vacÃ­a")
         return self._cartas.pop()
 
     def ver_tope(self) -> Optional[Card]:
-        """Retorna la carta superior o None si está vacía."""
+        """Retorna la carta superior o None si estÃ¡ vacÃ­a."""
 
         return self._cartas[-1] if self._cartas else None
 
@@ -53,10 +53,11 @@ class PilaAbstracta(ABC):
 
     @abstractmethod
     def puede_recibir_carta(self, carta: Card) -> bool:
-        """Regla específica para recibir una carta."""
+        """Regla especÃ­fica para recibir una carta."""
 
     def cartas(self) -> List[Card]:
         """Retorna una copia superficial de las cartas."""
 
         return list(self._cartas)
+
 

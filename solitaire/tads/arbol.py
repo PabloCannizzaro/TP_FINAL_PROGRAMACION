@@ -1,9 +1,9 @@
-"""Árbol binario de búsqueda simple (BST) para puntajes.
+﻿"""Ãrbol binario de bÃºsqueda simple (BST) para puntajes.
 
-Provee inserción y recorrido en-orden. Usado para ordenar una tabla
+Provee inserciÃ³n y recorrido en-orden. Usado para ordenar una tabla
 de puntuaciones por puntaje (y desempate por menor tiempo/movimientos).
 
-Nota: Implementación mínima para el TP; no está balanceado.
+Nota: ImplementaciÃ³n mÃ­nima para el TP; no estÃ¡ balanceado.
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class _Node(Generic[K, V]):
 
 
 class ArbolBST(Generic[K, V]):
-    """BST genérico clave/valor con recorrido en-orden."""
+    """BST genÃ©rico clave/valor con recorrido en-orden."""
 
     def __init__(self) -> None:
         self._root: Optional[_Node[K, V]] = None
@@ -53,4 +53,5 @@ class ArbolBST(Generic[K, V]):
 
     def to_list(self) -> List[Tuple[K, V]]:
         return list(self.inorder())
+
 

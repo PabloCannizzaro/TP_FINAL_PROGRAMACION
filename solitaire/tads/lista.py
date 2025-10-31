@@ -1,6 +1,7 @@
-"""ListaTAD: educational wrapper around Python list.
+"""ListaTAD: contenedor educativo sobre ``list`` de Python.
 
-Used for tableau columns and stacks of moves.
+Se utiliza para columnas del tableau y para listas auxiliares del motor.
+Hace explícitas operaciones comunes (insertar, agregar, quitar, sublista).
 """
 from __future__ import annotations
 
@@ -10,33 +11,33 @@ T = TypeVar("T")
 
 
 class ListaTAD(Generic[T]):
-    """A simple list wrapper exposing common operations explicitly."""
+    """Contenedor simple que expone operaciones habituales explícitamente."""
 
     def __init__(self, items: Optional[Iterable[T]] = None) -> None:
         self._data: List[T] = list(items) if items is not None else []
 
     def insertar(self, idx: int, item: T) -> None:
-        """Insert an item at ``idx`` shifting to the right."""
+        """Inserta un elemento en ``idx`` desplazando a la derecha."""
 
         self._data.insert(idx, item)
 
     def agregar(self, item: T) -> None:
-        """Append an item to the end of the list."""
+        """Agrega un elemento al final de la lista."""
 
         self._data.append(item)
 
     def quitar(self, idx: int) -> T:
-        """Remove and return the item at ``idx``."""
+        """Quita y retorna el elemento en ``idx``."""
 
         return self._data.pop(idx)
 
     def concatenar(self, otra: "ListaTAD[T]") -> None:
-        """Extend this list with items from ``otra``."""
+        """Extiende esta lista con los elementos de ``otra``."""
 
         self._data.extend(otra._data)
 
     def sublista(self, inicio: int, fin: Optional[int] = None) -> "ListaTAD[T]":
-        """Return a new ``ListaTAD`` as a slice [inicio:fin]."""
+        """Retorna una nueva ``ListaTAD`` como corte [inicio:fin]."""
 
         return ListaTAD(self._data[inicio:fin])
 
@@ -53,12 +54,11 @@ class ListaTAD(Generic[T]):
         return iter(self._data)
 
     def vaciar(self) -> None:
-        """Remove all items from the list."""
+        """Elimina todos los elementos de la lista."""
 
         self._data.clear()
 
     def to_list(self) -> List[T]:
-        """Return a shallow copy as a plain list."""
+        """Retorna una copia superficial como lista nativa."""
 
         return list(self._data)
-

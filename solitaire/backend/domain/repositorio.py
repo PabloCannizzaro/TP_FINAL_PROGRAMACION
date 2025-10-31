@@ -1,6 +1,13 @@
-"""Repositorio JSON para Partidas (CRUD).
+"""Repositorio JSON para Partidas (CRUD) sobre archivo local.
 
-Persistencia simple basada en ``json`` sobre un archivo local.
+Características:
+- Estructura de almacenamiento: diccionario ``id -> partida`` en un JSON.
+- Operaciones atómicas a nivel de archivo (lectura y escritura completa).
+- Crea el archivo y directorios si no existen.
+
+Notas:
+- Este repositorio está pensado para un entorno académico/simple; no maneja
+  concurrencia entre procesos ni bloqueos de archivo.
 """
 from __future__ import annotations
 

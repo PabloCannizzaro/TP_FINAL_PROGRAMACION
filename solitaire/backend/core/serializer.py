@@ -1,4 +1,4 @@
-"""Serialización del estado del juego a JSON y viceversa."""
+﻿"""SerializaciÃ³n del estado del juego a/desde estructuras JSON-friendly."""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -59,3 +59,4 @@ def deserialize_state(data: Dict[str, Any]) -> Dict[str, Any]:
         "won": bool(data.get("won", False)),
     }
     return state
+

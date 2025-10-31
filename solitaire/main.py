@@ -1,6 +1,8 @@
-"""Entry point to run the Klondike Solitaire web app.
+"""Punto de entrada para ejecutar la aplicación web de Klondike.
 
-Runs the FastAPI backend and serves the SPA frontend.
+Inicia el backend FastAPI y sirve el frontend (SPA). Lee el puerto de la
+variable de entorno ``PORT`` (usada por Railway/Heroku-like) y por defecto
+usa 8000 en local. No contiene lógica de dominio.
 """
 from __future__ import annotations
 

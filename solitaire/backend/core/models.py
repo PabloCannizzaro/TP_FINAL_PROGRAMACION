@@ -1,4 +1,4 @@
-"""Modelos base para el solitario Klondike.
+﻿"""Modelos base para el solitario Klondike.
 
 Contiene definiciones de palos, rangos, cartas y movimientos.
 """
@@ -38,7 +38,7 @@ class Rank(int, Enum):
 
 @dataclass(frozen=True)
 class Card:
-    """Una carta de la baraja inglesa.
+    """Una carta de la baraja inglesa (inmutable).
 
     Atributos: ``rank``, ``suit`` y ``face_up`` (boca arriba/abajo).
     """
@@ -71,10 +71,11 @@ class MoveType(str, Enum):
 
 @dataclass
 class Move:
-    """Representa un movimiento atómico en el juego."""
+    """Representa un movimiento atÃ³mico en el juego."""
 
     type: MoveType
     source: Optional[Tuple[str, int]] = None
     target: Optional[Tuple[str, int]] = None
     count: int = 1
+
 

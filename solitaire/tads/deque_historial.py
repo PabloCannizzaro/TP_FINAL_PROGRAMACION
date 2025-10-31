@@ -1,4 +1,4 @@
-"""HistorialMovimientos: undo/redo history using collections.deque.
+﻿"""HistorialMovimientos: undo/redo history using collections.deque.
 
 Provides O(1) push/pop operations for unlimited history.
 """
@@ -30,7 +30,7 @@ class HistorialMovimientos(Generic[T]):
     def push_undo_preserve_redo(self, item: T) -> None:
         """Push onto undo stack without clearing redo.
 
-        Útil para operaciones de "rehacer" donde no queremos descartar el
+        Ãštil para operaciones de "rehacer" donde no queremos descartar el
         resto del historial de redo.
         """
 
@@ -54,4 +54,5 @@ class HistorialMovimientos(Generic[T]):
     def clear(self) -> None:
         self._undos.clear()
         self._redos.clear()
+
 

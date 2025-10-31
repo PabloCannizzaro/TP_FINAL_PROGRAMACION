@@ -1,6 +1,7 @@
-"""ColaTAD: thin educational wrapper around queue.SimpleQueue.
+"""ColaTAD: contenedor educativo sobre ``queue.SimpleQueue``.
 
-Used for the stock (mazo) and optional event queues.
+Se utiliza para modelar el mazo (stock) y posibles colas de eventos.
+Expone una interfaz mínima (encolar/desencolar/emptiness) acorde al TP.
 """
 from __future__ import annotations
 
@@ -11,9 +12,9 @@ T = TypeVar("T")
 
 
 class ColaTAD(Generic[T]):
-    """A First-In-First-Out queue using ``queue.SimpleQueue``.
+    """Cola FIFO basada en ``queue.SimpleQueue``.
 
-    Provides a minimal interface used by the game engine.
+    Provee una interfaz mínima utilizada por el motor del juego.
     """
 
     def __init__(self, items: Optional[Iterable[T]] = None) -> None:
@@ -28,9 +29,9 @@ class ColaTAD(Generic[T]):
         self._q.put(item)
 
     def desencolar(self) -> T:
-        """Dequeue and return the next item.
+        """Desencola y retorna el próximo elemento.
 
-        Raises ``QueueEmpty`` (ValueError) if the queue is empty.
+        Lanza ``ValueError`` ("QueueEmpty") si la cola está vacía.
         """
 
         if self.esta_vacia():
@@ -43,11 +44,11 @@ class ColaTAD(Generic[T]):
         return self._q.empty()
 
     def __len__(self) -> int:
-        """Return an approximate size (not strictly guaranteed by SimpleQueue)."""
+        """Tamaño aproximado (``SimpleQueue`` no lo garantiza estrictamente)."""
 
-        # SimpleQueue lacks qsize() reliably across platforms; emulate via iteration.
-        # To keep O(1), we track length externally would require more code; for
-        # our usage we won't rely on __len__ for correctness. Return 0/1 heuristic.
+        # ``SimpleQueue`` carece de ``qsize`` confiable; evitamos costo/estado extra.
+        # Aquí devolvemos 0/1 heurístico ya que el tamaño exacto no se usa
+        # para la corrección del motor.
         return 0 if self._q.empty() else 1
 
     def drenar(self) -> Iterator[T]:
@@ -55,4 +56,3 @@ class ColaTAD(Generic[T]):
 
         while not self.esta_vacia():
             yield self.desencolar()
-

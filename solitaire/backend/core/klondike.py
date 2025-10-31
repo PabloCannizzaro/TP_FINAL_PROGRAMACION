@@ -17,6 +17,28 @@ from .scoring import Scoring
 from .serializer import deserialize_state, serialize_state
 
 
+# ---------------------------------------------------------------------------
+# Notas de diseño del motor
+#
+# - El motor mantiene pilas tipadas: ``PilaMazo`` (cola + snapshot),
+#   ``PilaDescarte``, ``PilaTableau`` (7 columnas) y ``PilaFundacion`` (4 palos).
+# - Todas las operaciones son deterministas y sin I/O; el frontend y la API
+#   interactúan mediante ``apply_move`` y la serialización ``to_state``.
+# - Los tipos de movimiento aceptados por ``apply_move`` son:
+#     * draw: robar del mazo al descarte (1 o 3 según ``draw_count``). Si el
+#       mazo está vacío y hay descarte, se recicla automáticamente.
+#     * t2t: mover una subpila desde una columna del tableau a otra, manteniendo
+#       el orden y respetando alternancia de color y rango descendente.
+#     * t2f: mover la carta superior de una columna a su fundación (mismo palo
+#       y rango inmediatamente superior).
+#     * w2t: mover la carta superior del descarte a una columna válida.
+#     * w2f: mover la carta superior del descarte a su fundación.
+# - El historial (undo/redo) se implementa almacenando snapshots del estado
+#   serializado antes de cada movimiento para garantizar revertibilidad.
+# - La victoria se define como las 4 fundaciones completas (13 cartas c/u).
+# ---------------------------------------------------------------------------
+
+
 class PilaFundacion(PilaAbstracta):
     """Pila de fundación: asciende por palo desde As a Rey."""
 

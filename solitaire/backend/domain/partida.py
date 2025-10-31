@@ -1,7 +1,10 @@
-"""Dominio: Clase principal Partida con CRUD y encapsulado.
+"""Dominio: entidad ``Partida`` (persistible) con encapsulado de semilla.
 
-Expone la entidad de negocio que persiste el estado del juego
-serializado (JSON) y metadatos como puntaje y tiempo.
+Responsabilidades:
+- Representar una sesión de juego con su estado serializado y métricas.
+- Permitir crear una partida nueva desde un motor ``KlondikeGame``.
+- Encapsular la semilla de barajado (sólo lectura) para reproducibilidad.
+- Sincronizar atributos (puntaje, movimientos, tiempo) desde el motor.
 """
 from __future__ import annotations
 

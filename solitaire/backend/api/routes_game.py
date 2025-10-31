@@ -1,14 +1,20 @@
-"""Rutas REST para el juego Klondike.
+"""Rutas REST para el juego Klondike (FastAPI).
 
-Endpoints principales:
-  - POST /api/game/new {mode, seed?, draw}
-  - POST /api/game/move {move}
-  - POST /api/game/hint
-  - POST /api/game/undo
-  - POST /api/game/redo
-  - POST /api/game/autoplay
-  - GET  /api/game/state
-  - CRUD /api/saves ...
+Endpoints principales y contratos:
+  - POST /api/game/new {mode, draw, seed?, player_name?} -> {id,state}
+  - POST /api/game/move {move} -> {ok,state} (400 si ilegal)
+  - POST /api/game/hint -> {hint}
+  - POST /api/game/undo -> {ok,state}
+  - POST /api/game/redo -> {ok,state}
+  - POST /api/game/autoplay {limit?} -> {moved,state}
+  - GET  /api/game/state -> state
+  - CRUD /api/saves ... (JSON en data/saves.json)
+
+Notas:
+- El manejo de errores se unifica en app.py para devolver {"detail": msg}.
+- Se guarda en memoria un juego activo (GameHolder) y se persiste tras cada
+  acción.
+- En victoria se registra una entrada en el scoreboard (si es posible).
 """
 from __future__ import annotations
 
@@ -40,7 +46,12 @@ def _scoreboard() -> ScoreboardService:
 
 
 class GameHolder:
-    """Mantiene el juego actual en memoria y su Partida asociada."""
+    """Mantiene el juego actual en memoria y su ``Partida`` asociada.
+
+    Este holder permite compartir una sesión en memoria entre llamadas HTTP
+    dentro del mismo proceso (útil para desarrollo/demo). La persistencia
+    duradera se realiza en JSON mediante ``RepositorioPartidasJSON``.
+    """
 
     def __init__(self) -> None:
         self.game: Optional[KlondikeGame] = None

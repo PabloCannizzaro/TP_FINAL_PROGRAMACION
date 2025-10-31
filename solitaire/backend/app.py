@@ -1,4 +1,13 @@
-"""FastAPI app factory and static mount for the SPA."""
+"""Fábrica de aplicación FastAPI y montaje del frontend (SPA).
+
+Descripción general:
+- Expone la API REST bajo el prefijo ``/api`` (ver ``routes_game.py``).
+- Monta el frontend estático bajo ``/static`` y sirve ``/`` con ``index.html``.
+- Habilita CORS amplio para facilitar ejecución local y despliegue simple.
+- Normaliza errores HTTP y ``ValueError`` devolviendo JSON ``{"detail": str}``.
+
+Este módulo no contiene lógica de juego; solo integra FastAPI y el SPA.
+"""
 from __future__ import annotations
 
 from pathlib import Path

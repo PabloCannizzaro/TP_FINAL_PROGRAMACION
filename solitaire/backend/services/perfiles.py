@@ -1,6 +1,7 @@
-"""Servicio de perfiles de usuario (simple).
+"""Servicio de perfiles de usuario (simple, basado en JSON).
 
-Administra un JSON con preferencias (idioma, alto contraste, nombre validado).
+Gestiona preferencias básicas por usuario (p. ej., idioma, alto contraste,
+nombre validado) en un archivo JSON. Validaciones mínimas y sin concurrencia.
 """
 from __future__ import annotations
 
@@ -42,4 +43,3 @@ class ServicioPerfiles:
     def get_prefs(self, usuario: str) -> Dict:
         data = self._leer()
         return data.get(usuario, {})
-
