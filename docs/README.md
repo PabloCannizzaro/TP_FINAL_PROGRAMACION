@@ -2,11 +2,11 @@
 
 Proyecto académico: Solitario Klondike con frontend web (SPA) y backend en Python (FastAPI). Cumple con modularización, TADs, herencia (clase abstracta), CRUD con persistencia JSON, docstrings, pruebas y CI.
 
-## Despliegue con 1 click (Render)
+## Despliegue con 1 click (Railway)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
 
-Este botón usa el blueprint `render.yaml` incluido en el repositorio y levanta el servicio web automáticamente (instala dependencias y ejecuta `uvicorn` con el puerto asignado por Render).
+Railway detecta Python (Nixpacks) o usa el Dockerfile. El proceso web se define en el `Procfile` y la app toma el puerto desde la variable `PORT`.
 
 ## Requisitos
 
@@ -69,10 +69,10 @@ pytest -q
 - [x] CRUD completo de Partida con persistencia JSON.
 - [x] Interfaz web funcional (drag básico, HUD, controles).
 - [x] Tests unitarios (TADs, reglas, CRUD, API) + CI.
-- [x] README con instalación y librerías.
 
 ## Notas de diseño
 
 - El historial de deshacer/rehacer guarda el estado serializado completo (simple/robusto).
 - La pila `PilaMazo` usa `ColaTAD` y mantiene snapshot para serialización.
 - El frontend usa JS vanilla (accesible, ARIA básico) para minimizar dependencias.
+

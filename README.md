@@ -1,16 +1,13 @@
 Klondike Solitaire (FastAPI + Web)
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/PabloCannizzaro/TP_FINAL_PROGRAMACION)
-
-Despliegue con 1 click en Render usando el blueprint `render.yaml` incluido en el repo. El servicio instala dependencias y ejecuta `uvicorn` con el puerto que asigna Render.
 
 Diagnóstico inicial
 
 - Frontend presentaba caracteres corruptos y un bug de sintaxis en `solitaire/frontend/main.js` que rompía el render (línea de stock con comillas inválidas y símbolos rotos). Además, no había manejo de errores ni estados de carga, permitiendo dobles clics y múltiples requests concurrentes.
 - UI con textos con encoding corrupto en `solitaire/frontend/index.html` y sin feedback accesible.
 - Backend estable, con endpoints claros; faltaba una prueba de error para movimientos inválidos.
-- Render (despliegue) correcto vía `render.yaml`, pero sin documentación unificada en la raíz ni scripts de lint/format.
+ 
 
 Arquitectura de estado del juego
 
@@ -36,7 +33,7 @@ Pruebas
 
 - Lógica: ya existente en `tests/test_rules.py` y TADs en `tests/test_tads.py`.
 - API: `tests/test_api.py` cubre ciclo básico; se agregó `tests/test_errors.py` para validar 400 ante movimiento inválido.
-- Botón Render: se interpreta el requisito como “un solo clic → acción esperada con loading/disabled y errores manejados” aplicado a botones principales (Nuevo, Robar, Undo/Redo, Pista, Autoplay). La lógica se valida indirectamente por pruebas de API y manualmente en UI.
+ 
 
 Scripts y tooling
 
@@ -62,13 +59,11 @@ Despliegue en Railway
 - Usa el botón de este README (Deploy on Railway). No requiere configuración adicional: `Procfile` ya expone el proceso web con Uvicorn y Railway inyecta `PORT`.
 - Salud sugerida: `GET /api/game/state`.
 
-Despliegue en Render
-
-- Botón en `docs/README.md` o usando `render.yaml` del repo (uvicorn con `--factory`).
+ 
 
 Variables de entorno
 
-- `PORT`: asignado por Render (no requerido localmente).
+- `PORT`: asignado por Railway (no requerido localmente).
 
 Checklist de aceptación
 
