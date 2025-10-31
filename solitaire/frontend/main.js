@@ -173,11 +173,7 @@ async function newGame() {
 }
 
 async function draw() {
-  await action(async () => {
-    const name = safeGet('playerName');
-    const res = await api.post('/api/game/move', { move: { type: 'draw' }, name });
-    state = res.state; render();
-  });
+  await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'draw' } }); state = res.state; render(); });
 }
 async function undo() { await action(async () => { const res = await api.post('/api/game/undo'); state = res.state; render(); }); }
 async function redo() { await action(async () => { const res = await api.post('/api/game/redo'); state = res.state; render(); }); }
@@ -295,8 +291,6 @@ function render() {
     d.addEventListener('drop', onDropTableau);
     tab.appendChild(d);
   });
-  // Mostrar modal de victoria si corresponde
-  maybeShowWin();
 }
 
 function onDragStart(e) {
@@ -323,8 +317,7 @@ async function onDropTableau(e) {
     move = { type: 't2t', from_col: data.from_col, start_index: data.start_index, to_col };
   }
   await action(async () => {
-    const name = safeGet('playerName');
-    const res = await api.post('/api/game/move', { move, name });
+    const res = await api.post('/api/game/move', { move });
     state = res.state; render();
   });
 }
@@ -347,8 +340,7 @@ async function onDropFoundation(e) {
     move = { type: 't2f', from_col: data.from_col };
   }
   await action(async () => {
-    const name = safeGet('playerName');
-    const res = await api.post('/api/game/move', { move, name });
+    const res = await api.post('/api/game/move', { move });
     state = res.state; render();
   });
 }
@@ -357,20 +349,12 @@ async function onDoubleClickTop(e) {
   const el = e.currentTarget;
   const parent = el.parentElement;
   if (parent.id === 'waste') {
-    await action(async () => {
-      const name = safeGet('playerName');
-      const res = await api.post('/api/game/move', { move: { type: 'w2f' }, name });
-      state = res.state; render();
-    });
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 'w2f' } }); state = res.state; render(); });
   } else if (parent.classList.contains('col')) {
     const from_col = Number(parent.dataset.col);
     const idx = Number(el.dataset.index);
     if (idx !== state.tableau[from_col].length - 1) return; // solo tope
-    await action(async () => {
-      const name = safeGet('playerName');
-      const res = await api.post('/api/game/move', { move: { type: 't2f', from_col }, name });
-      state = res.state; render();
-    });
+    await action(async () => { const res = await api.post('/api/game/move', { move: { type: 't2f', from_col } }); state = res.state; render(); });
   }
 }
 
@@ -459,27 +443,6 @@ if (btnCloseLeaderboard && leaderboardModal) {
 }
 if (leaderboardModal) {
   leaderboardModal.addEventListener('click', (e) => { if (e.target === leaderboardModal) leaderboardModal.setAttribute('aria-hidden','true'); });
-}
-
-// Modal de victoria
-const winModal = document.getElementById('win-modal');
-const btnCloseWin = document.getElementById('btn-close-win');
-const btnPlayAgain = document.getElementById('btn-play-again');
-function maybeShowWin() {
-  try {
-    if (!state || !state.won || !winModal) return;
-    // Completar datos
-    const s = document.getElementById('win-score'); if (s) s.textContent = String(state.score || 0);
-    const m = document.getElementById('win-moves'); if (m) m.textContent = String(state.moves || 0);
-    const t = document.getElementById('win-time'); if (t) t.textContent = String(state.seconds || 0);
-    winModal.setAttribute('aria-hidden', 'false');
-  } catch (_) { /* ignore */ }
-}
-function closeWinModal() { if (winModal) winModal.setAttribute('aria-hidden', 'true'); }
-if (btnCloseWin) btnCloseWin.addEventListener('click', () => closeWinModal());
-if (btnPlayAgain) btnPlayAgain.addEventListener('click', () => { closeWinModal(); newGame(); });
-if (winModal) {
-  winModal.addEventListener('click', (e) => { if (e.target === winModal) closeWinModal(); });
 }
 
 // Nombre de jugador modal
