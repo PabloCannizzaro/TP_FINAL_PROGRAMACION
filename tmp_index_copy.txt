@@ -1,5 +1,19 @@
-// Improved SPA logic: rendering, drag/drop, a11y, loading/error handling.
-const api = {
-  async post(url, body) {
-    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
-    let da
+async function initApp() {
+  try {
+    state = await api.get('/api/game/state');
+    render();
+  } catch (_) {
+    await newGame();
+  }
+  // Siempre pedir el nombre al cargar/reiniciar página
+  safeSet('playerName', '');
+  openNameModal();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initApp());
+} else {
+  initApp();
+}
+
+

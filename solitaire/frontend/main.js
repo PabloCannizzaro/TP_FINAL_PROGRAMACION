@@ -181,7 +181,49 @@ async function draw() {
 }
 async function undo() { await action(async () => { const res = await api.post('/api/game/undo'); state = res.state; render(); }); }
 async function redo() { await action(async () => { const res = await api.post('/api/game/redo'); state = res.state; render(); }); }
-async function hint() { await action(async () => { const res = await api.post('/api/game/hint'); if (res.hint) highlightHint(res.hint); }); }
+function colName(n) { return `columna ${Number(n) + 1}`; }
+function describeHint(h) {
+  try {
+    if (!h || !state) return '';
+    if (h.type === 'draw') return 'Roba una carta del mazo.';
+    if (h.type === 'w2f') {
+      const top = state.waste[state.waste.length - 1];
+      return top ? `Mueve ${cardNameES(top)} a su fundación.` : 'Mueve la carta del descarte a fundación.';
+    }
+    if (h.type === 'w2t') {
+      const top = state.waste[state.waste.length - 1];
+      return top ? `Mueve ${cardNameES(top)} a la ${colName(h.to_col)}.` : `Mueve del descarte a la ${colName(h.to_col)}.`;
+    }
+    if (h.type === 't2f') {
+      const col = state.tableau[h.from_col] || [];
+      const top = col[col.length - 1];
+      return top ? `Mueve ${cardNameES(top)} a su fundación.` : `Mueve la carta superior de la ${colName(h.from_col)} a fundación.`;
+    }
+    if (h.type === 't2t') {
+      const col = state.tableau[h.from_col] || [];
+      const start = Number(h.start_index) || 0;
+      const chain = col.slice(start);
+      if (chain.length <= 1) {
+        const c = chain[0];
+        return c ? `Mueve ${cardNameES(c)} a la ${colName(h.to_col)}.` : `Mueve a la ${colName(h.to_col)}.`;
+      }
+      return `Mueve cadena de ${chain.length} cartas desde ${colName(h.from_col)} a ${colName(h.to_col)}.`;
+    }
+  } catch (_) { /* ignore */ }
+  return 'Existe un movimiento disponible.';
+}
+
+async function hint() {
+  await action(async () => {
+    const res = await api.post('/api/game/hint');
+    if (res.hint) {
+      try { toast(describeHint(res.hint) || 'Sugerencia disponible', 'info'); } catch {}
+      highlightHint(res.hint);
+    } else {
+      try { toast('Sin movimientos sugeridos.', 'info'); } catch {}
+    }
+  });
+}
 async function autoplay() { await action(async () => { const res = await api.post('/api/game/autoplay', { limit: 200 }); state = res.state; render(); }); }
 
 function renderHUD() {
@@ -385,6 +427,13 @@ document.getElementById('btn-autoplay').addEventListener('click', autoplay);
 document.getElementById('stock').addEventListener('click', draw);
 document.getElementById('stock').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') draw(); });
 
+// Permitir cambiar nombre clickeando el nombre del HUD
+const playerEl = document.getElementById('player');
+if (playerEl) {
+  playerEl.addEventListener('click', () => { try { openNameModal(); } catch {} });
+  try { playerEl.style.cursor = 'pointer'; playerEl.title = 'Editar nombre'; } catch {}
+}
+
 // waste peek toggle
 const peekBtn = document.getElementById('btn-waste-peek');
 if (peekBtn) {
@@ -519,8 +568,10 @@ async function initApp() {
     await newGame();
   }
   // Siempre pedir el nombre al cargar/reiniciar página
-  safeSet('playerName', '');
-  openNameModal();
+  const existingName = safeGet('playerName');
+  if (!existingName) {
+    try { toast('Opcional: definí tu nombre desde el cuadro.', 'info'); } catch {}
+  }
 }
 
 if (document.readyState === 'loading') {
