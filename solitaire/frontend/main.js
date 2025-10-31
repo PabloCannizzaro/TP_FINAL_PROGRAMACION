@@ -613,6 +613,56 @@ if (document.readyState === 'loading') {
       <p>Completar las 4 fundaciones ordenando cada palo de As (A) a Rey (K).</p>
       <h3>🧩 Componentes</h3>
       <ul>
+    `;
+  }
+  function applyDecorations() { try { decorateButtons(); enhanceRules(); } catch (_) {} }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyDecorations);
+  } else {
+    applyDecorations();
+  }
+})();
+
+// Versión detallada de la descripción de pista (sobrescribe la previa)
+function describeHint(h) {
+  try {
+    if (!h || !state) return '';
+    if (h.type === 'draw') return 'Roba una carta del mazo.';
+    if (h.type === 'recycle') return 'Recicla el descarte al mazo (clic en Robar).';
+    if (h.type === 'w2f') {
+      const top = state.waste[state.waste.length - 1];
+      return top ? `Mueve ${cardNameES(top)} a su fundación.` : 'Mueve la carta del descarte a fundación.';
+    }
+    if (h.type === 'w2t') {
+      const top = state.waste[state.waste.length - 1];
+      const dest = state.tableau[h.to_col] || [];
+      const destTop = dest.length ? dest[dest.length - 1] : null;
+      const tail = destTop ? ` sobre ${cardNameES(destTop)}` : (dest.length === 0 ? ' (columna vacía)' : '');
+      return top ? `Mueve ${cardNameES(top)} a la ${colName(h.to_col)}${tail}.` : `Mueve del descarte a la ${colName(h.to_col)}${tail}.`;
+    }
+    if (h.type === 't2f') {
+      const col = state.tableau[h.from_col] || [];
+      const top = col[col.length - 1];
+      return top ? `Mueve ${cardNameES(top)} a su fundación.` : `Mueve la carta superior de la ${colName(h.from_col)} a fundación.`;
+    }
+    if (h.type === 't2t') {
+      const col = state.tableau[h.from_col] || [];
+      const start = Number(h.start_index) || 0;
+      const chain = col.slice(start);
+      const dest = state.tableau[h.to_col] || [];
+      const destTop = dest.length ? dest[dest.length - 1] : null;
+      const tail = destTop ? ` sobre ${cardNameES(destTop)}` : (dest.length === 0 ? ' (columna vacía)' : '');
+      if (chain.length <= 1) {
+        const c = chain[0];
+        return c ? `Mueve ${cardNameES(c)} a la ${colName(h.to_col)}${tail}.` : `Mueve a la ${colName(h.to_col)}${tail}.`;
+      }
+      const head = chain[0];
+      return `Mueve cadena de ${chain.length} cartas (empieza en ${cardNameES(head)}) desde ${colName(h.from_col)} a ${colName(h.to_col)}${tail}.`;
+    }
+    if (h.explain) return String(h.explain);
+  } catch (_) { /* ignore */ }
+  return 'Existe un movimiento disponible.';
+}
         <li><strong>Mazo</strong> y <strong>Descarte</strong>: roba 1 carta por clic.</li>
         <li><strong>Tableau</strong> (7 columnas): construye en <em>orden descendente</em> alternando <em>colores</em>.</li>
         <li><strong>Fundaciones</strong> (4 pilas): una por palo, en <em>orden ascendente</em> A→K.</li>
