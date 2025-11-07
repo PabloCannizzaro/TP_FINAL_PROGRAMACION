@@ -81,18 +81,38 @@ function enhanceRulesModal() {
 decorateButtons();
 enhanceRulesModal();
 
+function getClientId() {
+  let cid = safeGet('clientId');
+  if (!cid) {
+    try {
+      const rnd = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('cid_' + Date.now() + '_' + Math.random().toString(16).slice(2));
+      safeSet('clientId', rnd);
+      cid = rnd;
+    } catch (_) {
+      cid = 'cid_' + Date.now();
+    }
+  }
+  return cid;
+}
+
 const api = {
   async post(url, body) {
+    const isMove = /\/api\/game\/move\b/.test(String(url));
+    const enriched = Object.assign({}, body || {});
+    if (isMove) enriched.name = safeGet('playerName') || null;
     const r = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {})
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Id': getClientId(),
+      },
+      body: JSON.stringify(enriched)
     });
     if (!r.ok) throw new Error(await parseApiError(r));
     return r.json();
   },
   async get(url) {
-    const r = await fetch(url);
+    const r = await fetch(url, { headers: { 'X-Client-Id': getClientId() } });
     if (!r.ok) throw new Error(await parseApiError(r));
     return r.json();
   }
@@ -163,8 +183,10 @@ function safeSet(key, value) {
 }
 
 async function newGame() {
+  const name = safeGet('playerName');
+  if (!name) { try { openNameModal(); } catch {} return; }
   await action(async () => {
-    const playerName = safeGet('playerName') || null;
+    const playerName = name || null;
     const params = new URLSearchParams(window.location.search);
     const seedParam = params.get('seed');
     const payload = { mode: 'standard', draw: 1, player_name: playerName };
@@ -236,6 +258,11 @@ function renderHUD() {
   if (name) {
     const el = document.getElementById('player');
     if (el) el.textContent = name;
+  }
+  // Si se alcanzó la victoria, abrir el modal de stats (una vez)
+  if (state && state.won && !winNotified) {
+    try { openWinModal(); } catch {}
+    winNotified = true;
   }
 }
 
@@ -477,7 +504,7 @@ const btnLeaderboard = document.getElementById('btn-leaderboard');
 const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
 async function loadLeaderboard() {
   try {
-    const res = await api.get('/api/leaderboard');
+    const res = await api.get('/api/scoreboard');
     const list = document.getElementById('leaderboard-list');
     if (!list) return;
     list.innerHTML = '';
@@ -487,7 +514,15 @@ async function loadLeaderboard() {
     }
     items.forEach((it) => {
       const li = document.createElement('li');
-      li.textContent = `${it.jugador}: ${it.max_score} pts ( ${it.partidas || 1} partidas )`;
+      const name = it.jugador || it.name || 'Invitado';
+      const score = (typeof it.score !== 'undefined') ? it.score : (it.max_score || 0);
+      const moves = it.moves != null ? it.moves : (it.movimientos != null ? it.movimientos : undefined);
+      const seconds = it.seconds != null ? it.seconds : (it.tiempo_segundos != null ? it.tiempo_segundos : undefined);
+      const parts = [];
+      parts.push(`${score} pts`);
+      if (typeof moves !== 'undefined') parts.push(`${moves} mov`);
+      if (typeof seconds !== 'undefined') parts.push(`${seconds} s`);
+      li.textContent = `${name}: ${parts.join(' · ')}`;
       list.appendChild(li);
     });
   } catch (e) {
@@ -507,6 +542,32 @@ if (btnCloseLeaderboard && leaderboardModal) {
 }
 if (leaderboardModal) {
   leaderboardModal.addEventListener('click', (e) => { if (e.target === leaderboardModal) leaderboardModal.setAttribute('aria-hidden','true'); });
+}
+
+// Victoria modal (estadísticas)
+const winModal = document.getElementById('win-modal');
+const btnCloseWin = document.getElementById('btn-close-win');
+const btnCloseWin2 = document.getElementById('btn-close-win-2');
+const btnViewLeaderboard = document.getElementById('btn-view-leaderboard');
+function openWinModal() {
+  if (!winModal || !state) return;
+  const name = safeGet('playerName') || 'Invitado';
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+  setText('win-stats-name', name);
+  setText('win-stats-score', state.score);
+  setText('win-stats-moves', state.moves);
+  setText('win-stats-time', state.seconds);
+  winModal.setAttribute('aria-hidden', 'false');
+}
+function closeWinModal() { if (winModal) winModal.setAttribute('aria-hidden', 'true'); }
+if (btnCloseWin) btnCloseWin.addEventListener('click', () => closeWinModal());
+if (btnCloseWin2) btnCloseWin2.addEventListener('click', () => closeWinModal());
+if (btnViewLeaderboard) btnViewLeaderboard.addEventListener('click', async () => {
+  closeWinModal();
+  if (btnLeaderboard) btnLeaderboard.click();
+});
+if (winModal) {
+  winModal.addEventListener('click', (e) => { if (e.target === winModal) closeWinModal(); });
 }
 
 // Nombre de jugador modal
@@ -649,7 +710,29 @@ if (document.readyState === 'loading') {
       </ul>
     `;
   }
-  function applyDecorations() { try { decorateButtons(); enhanceRules(); } catch (_) {} }
+  function fixScoring() {
+    try {
+      const modal = document.getElementById('rules-modal');
+      if (!modal) return;
+      const body = modal.querySelector('.modal-body');
+      if (!body) return;
+      const headings = body.querySelectorAll('h3');
+      for (const h of headings) {
+        const text = (h.textContent || '').toLowerCase();
+        if (text.includes('puntu')) {
+          const ul = h.nextElementSibling;
+          if (ul && ul.tagName === 'UL') {
+            ul.innerHTML = `
+              <li>+10 a fundaci&oacute;n; +5 al voltear carta; +5 descarte &rarr; tableau; +3 entre columnas.</li>
+              <li>&minus;100 reciclar (Draw 1) / &minus;20 (Draw 3); &minus;5 deshacer.</li>
+            `;
+          }
+          break;
+        }
+      }
+    } catch (_) {}
+  }
+  function applyDecorations() { try { decorateButtons(); enhanceRules(); fixScoring(); } catch (_) {} }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', applyDecorations);
   } else {

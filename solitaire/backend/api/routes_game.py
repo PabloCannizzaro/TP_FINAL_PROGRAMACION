@@ -22,7 +22,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from ..core.klondike import KlondikeGame
 from ..core.hints import hint as compute_hint, hints as compute_hints
@@ -64,11 +64,22 @@ class GameHolder:
             self.partida = p
 
 
-holder = GameHolder()
+HOLDERS: Dict[str, GameHolder] = {}
+
+
+def _get_holder(request: Request) -> GameHolder:
+    """Devuelve un `GameHolder` por usuario, usando el header `X-Client-Id`."""
+    try:
+        cid = request.headers.get("x-client-id") or request.headers.get("X-Client-Id") or "default"
+    except Exception:
+        cid = "default"
+    if cid not in HOLDERS:
+        HOLDERS[cid] = GameHolder()
+    return HOLDERS[cid]
 
 
 @router.post("/game/new")
-def new_game(payload: Dict[str, Any]) -> Dict[str, Any]:
+def new_game(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
     mode = str(payload.get("mode", "standard"))
     draw = int(payload.get("draw", 1))
     seed = payload.get("seed")
@@ -82,16 +93,18 @@ def new_game(payload: Dict[str, Any]) -> Dict[str, Any]:
         jugador=str(player_name) if player_name else None,
     )
     g = KlondikeGame(mode=mode, draw_count=draw, seed=p.semilla)
-    holder.game, holder.partida = g, p
+    h = _get_holder(request)
+    h.game, h.partida = g, p
     _repo().crear(p)
     return {"id": p.id, "state": serialize_state(g.to_state())}
 
 
 @router.post("/game/move")
-def post_move(payload: Dict[str, Any]) -> Dict[str, Any]:
-    holder.ensure()
-    g, p = holder.game, holder.partida
-    assert g and p
+def post_move(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
+    h = _get_holder(request)
+    g, p = h.game, h.partida
+    if not g or not p:
+        raise HTTPException(status_code=400, detail="No hay partida activa")
     mv = payload.get("move")
     if not isinstance(mv, dict):
         raise HTTPException(status_code=400, detail="move inválido")
@@ -110,10 +123,11 @@ def post_move(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 @router.post("/game/hint")
-def post_hint() -> Dict[str, Any]:
-    holder.ensure()
-    g = holder.game
-    assert g
+def post_hint(request: Request) -> Dict[str, Any]:
+    h = _get_holder(request)
+    g = h.game
+    if not g:
+        raise HTTPException(status_code=400, detail="No hay partida activa")
     # Usar versiones puras basadas en el estado serializado
     state = serialize_state(g.to_state())
     h = compute_hint(state)
@@ -121,10 +135,11 @@ def post_hint() -> Dict[str, Any]:
 
 
 @router.post("/game/autoplay")
-def post_autoplay(payload: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    holder.ensure()
-    g, p = holder.game, holder.partida
-    assert g and p
+def post_autoplay(request: Request, payload: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    h = _get_holder(request)
+    g, p = h.game, h.partida
+    if not g or not p:
+        raise HTTPException(status_code=400, detail="No hay partida activa")
     limit = int((payload or {}).get("limit", 200))
     count = g.autoplay(limit=limit)
     p.actualizar_desde_juego(g)
@@ -133,10 +148,11 @@ def post_autoplay(payload: Dict[str, Any] | None = None) -> Dict[str, Any]:
 
 
 @router.post("/game/undo")
-def post_undo() -> Dict[str, Any]:
-    holder.ensure()
-    g, p = holder.game, holder.partida
-    assert g and p
+def post_undo(request: Request) -> Dict[str, Any]:
+    h = _get_holder(request)
+    g, p = h.game, h.partida
+    if not g or not p:
+        raise HTTPException(status_code=400, detail="No hay partida activa")
     if not g.undo():
         raise HTTPException(status_code=400, detail="No hay más para deshacer")
     p.actualizar_desde_juego(g)
@@ -145,10 +161,11 @@ def post_undo() -> Dict[str, Any]:
 
 
 @router.post("/game/redo")
-def post_redo() -> Dict[str, Any]:
-    holder.ensure()
-    g, p = holder.game, holder.partida
-    assert g and p
+def post_redo(request: Request) -> Dict[str, Any]:
+    h = _get_holder(request)
+    g, p = h.game, h.partida
+    if not g or not p:
+        raise HTTPException(status_code=400, detail="No hay partida activa")
     if not g.redo():
         raise HTTPException(status_code=400, detail="No hay más para rehacer")
     p.actualizar_desde_juego(g)
@@ -157,11 +174,17 @@ def post_redo() -> Dict[str, Any]:
 
 
 @router.get("/game/state")
-def get_state() -> Dict[str, Any]:
-    holder.ensure()
-    g = holder.game
-    assert g
-    return serialize_state(g.to_state())
+def get_state(request: Request) -> Dict[str, Any]:
+    h = _get_holder(request)
+    # Para compatibilidad con tests/CI y primera carga, auto-crear si no hay
+    if not h.game or not h.partida:
+        # crea una partida por defecto (modo standard, draw 1)
+        pid = str(uuid.uuid4())
+        p = Partida.nueva(id=pid)
+        g = KlondikeGame(mode=p.modo, draw_count=p.draw_count, seed=p.semilla)
+        h.game, h.partida = g, p
+        _repo().crear(p)
+    return serialize_state(h.game.to_state())
 
 
 # -------------------- CRUD de Partidas --------------------

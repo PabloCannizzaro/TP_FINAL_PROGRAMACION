@@ -154,8 +154,22 @@ def hints(state: Dict[str, Any], limit: int = 20) -> List[Move]:
                 if j == i:
                     continue
                 if _can_place_on_tableau(head, dest):
+                    # Evitar sugerencias cíclicas: mover rey entre vacíos sin revelar nada
+                    dtop = _tableau_top(dest)
                     reveals = start == first_up and first_up > 0
-                    base = 80 if reveals else 40
+                    head_rank = int(head.get("rank", 0))
+                    dest_is_empty = dtop is None
+                    if not reveals and dest_is_empty and head_rank == 13:
+                        # Saltar este movimiento: no revela y solo reubica un Rey a un hueco vacío
+                        continue
+
+                    # Ponderación: privilegiar movimientos que revelan; en caso contrario, bajar prioridad
+                    if reveals:
+                        base = 85  # debajo de w2f(100)/t2f(90) pero sobre w2t(70)
+                    else:
+                        # No revela: preferir robar antes de estos para evitar loops
+                        base = 5 if not dest_is_empty else 0
+
                     score = base + min(5, len(col) - start)  # leve premio por longitud
                     out.append({
                         "type": "t2t",
@@ -208,6 +222,25 @@ def hints(state: Dict[str, Any], limit: int = 20) -> List[Move]:
             m.setdefault("explain", "Reciclar descarte al mazo")
         enriched.append(m)
     out = enriched
+
+    # Quitar duplicados triviales (mismo tipo/origen/destino)
+    seen = set()
+    uniq: List[Move] = []
+    for m in out:
+        key = (
+            m.get("type"),
+            m.get("from_zone"),
+            m.get("from_col"),
+            m.get("start_index"),
+            m.get("to_zone"),
+            m.get("to_col"),
+            m.get("to_foundation"),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        uniq.append(m)
+    out = uniq
 
     # Ordenar por score descendente con desempates menores (tipo estable)
     out.sort(key=lambda m: (int(m.get("score", 0)), m.get("type", "")), reverse=True)

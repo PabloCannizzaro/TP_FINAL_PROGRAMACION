@@ -19,6 +19,9 @@ def test_api_lifecycle():
     # hint
     r = client.post('/api/game/hint')
     assert r.status_code == 200
+    # autoplay
+    r = client.post('/api/game/autoplay', json={"limit": 5})
+    assert r.status_code == 200
     # list saves
     r = client.get('/api/saves')
     assert r.status_code == 200

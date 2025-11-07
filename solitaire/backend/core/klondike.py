@@ -2,6 +2,18 @@
 
 Incluye: inicialización de partida, validación/aplicación de movimientos,
 deshacer/rehacer (historial), pistas y autocompletar.
+
+Puntuación (modo Standard implementado):
+- +10 por cada carta movida a fundación (de As a Rey).
+- +5 por cada carta volteada en el tableau al descubrir una nueva superior.
+- +5 por mover desde el descarte a una columna del tableau.
+- +3 por mover entre columnas del tableau (cadenas válidas).
+- −100 por reciclar el mazo en Draw 1 / −20 en Draw 3.
+- −5 por usar Deshacer.
+
+Notas:
+- No se aplica penalización por tiempo.
+- Mover desde tableau a fundación NO penaliza (se contabiliza el +10 anterior).
 """
 from __future__ import annotations
 
@@ -176,7 +188,7 @@ class KlondikeGame:
             "waste": self.waste.cartas(),
             "foundations": {k: v.cartas() for k, v in self.foundations.items()},
             "tableau": [col.cartas() for col in self.tableau],
-            "score": self.scoring.score,
+            "score": int(self.scoring.score),
             "moves": self.scoring.moves,
             "seconds": self.scoring.seconds(),
             "won": self.is_won(),
@@ -191,7 +203,7 @@ class KlondikeGame:
         self.foundations = {k: PilaFundacion(v) for k, v in state["foundations"].items()}
         self.waste = PilaDescarte(state["waste"])
         self.stock = PilaMazo(state["stock"])
-        self.scoring.score = state["score"]
+        self.scoring.score = int(state["score"])  # permitir negativos
         self.scoring.moves = state["moves"]
 
     def _snapshot_for_undo(self) -> None:
@@ -216,6 +228,8 @@ class KlondikeGame:
         top = col.ver_tope()
         if top and not top.face_up:
             col._cartas[-1] = top.flips()
+            # Scoring: flipping a hidden card on tableau awards +5
+            self.scoring.add_points(5)
 
     # -------------------- Movimientos --------------------
     def draw_from_stock(self) -> bool:
@@ -297,8 +311,8 @@ class KlondikeGame:
         dest.apilar(top)
         origen.desapilar()
         self._flip_top_if_needed(origen)
-        # Penalty: moving from tableau to foundation costs 15 points
-        self.scoring.add_points(-15)
+        # Scoring: +10 for moving to foundation (tableau -> foundation)
+        self.scoring.add_points(10)
         self.scoring.add_move()
         return True
 

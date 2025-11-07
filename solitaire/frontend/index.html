@@ -62,6 +62,39 @@
           <ul>
             <li>+10 al mover a fundación; −15 por reciclar mazo; −1 por ciertos movimientos; +5 al voltear carta.</li>
           </ul>
+          <p>Puntuación (modo Standard):</p>
+          <ul>
+            <li>+10 por carta movida a fundación.</li>
+            <li>+5 por cada carta volteada en el tablero.</li>
+            <li>+5 por mover del descarte a una columna.</li>
+            <li>+3 por mover entre columnas del tablero.</li>
+            <li>−100 al reciclar el mazo en Draw 1 / −20 en Draw 3.</li>
+            <li>−5 por usar Deshacer.</li>
+          </ul>
+          <p class="hint">No hay penalización por tiempo en este modo.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de victoria -->
+    <div id="win-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="win-title">
+      <div class="modal-content small" role="document">
+        <header class="modal-header">
+          <h2 id="win-title">¡Felicidades, ganaste!</h2>
+          <button id="btn-close-win" class="modal-close" aria-label="Cerrar">&times;</button>
+        </header>
+        <div class="modal-body">
+          <p class="hint">Resumen de tu partida:</p>
+          <ul>
+            <li>Jugador: <strong id="win-stats-name">-</strong></li>
+            <li>Puntos: <strong id="win-stats-score">0</strong></li>
+            <li>Movimientos: <strong id="win-stats-moves">0</strong></li>
+            <li>Tiempo: <strong id="win-stats-time">0</strong> s</li>
+          </ul>
+          <div class="modal-actions">
+            <button id="btn-view-leaderboard" type="button" title="Ver mejores puntajes">Ver ranking</button>
+            <button id="btn-close-win-2" type="button" title="Cerrar">Cerrar</button>
+          </div>
+          <p class="hint">Tus estadísticas se registraron en el ranking.</p>
         </div>
       </div>
     </div>
@@ -95,7 +128,7 @@
         </div>
       </div>
     </div>
-    <script type="module" src="/static/main.js?v=20251027"></script>
+    <script type="module" src="/static/main.js?v=20251107"></script>
   </body>
   </html>
 

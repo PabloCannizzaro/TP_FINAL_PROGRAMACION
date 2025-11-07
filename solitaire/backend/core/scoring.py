@@ -38,10 +38,7 @@ class Scoring:
         self.moves += 1
 
     def add_points(self, pts: int) -> None:
-        if self.mode == "vegas":
-            # Vegas usually uses money; we approximate with points.
-            self.score += pts
-        else:
-            self.score += pts
+        """Suma puntos (el total puede ser negativo)."""
+        self.score += pts
 
 
