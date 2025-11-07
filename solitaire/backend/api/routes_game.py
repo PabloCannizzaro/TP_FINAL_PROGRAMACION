@@ -113,10 +113,11 @@ def post_move(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="Movimiento ilegal")
     p.actualizar_desde_juego(g)
     _repo().actualizar(p)
-    # si ganó, registrar en scoreboard con nombre anónimo (placeholder)
+    # si ganó, registrar en scoreboard usando el nombre del jugador si existe
     try:
         if g.is_won():
-            _scoreboard().add(name=payload.get("name") or "Anónimo", score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
+            nombre = p.jugador or payload.get("name") or "Anónimo"
+            _scoreboard().add(name=nombre, score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
     except Exception:
         pass
     return {"ok": True, "state": serialize_state(g.to_state())}
@@ -144,6 +145,13 @@ def post_autoplay(request: Request, payload: Dict[str, Any] | None = None) -> Di
     count = g.autoplay(limit=limit)
     p.actualizar_desde_juego(g)
     _repo().actualizar(p)
+    # si al terminar el autoplay se ganó, registrar en el scoreboard
+    try:
+        if g.is_won():
+            nombre = p.jugador or "Anónimo"
+            _scoreboard().add(name=nombre, score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
+    except Exception:
+        pass
     return {"moved": count, "state": serialize_state(g.to_state())}
 
 
