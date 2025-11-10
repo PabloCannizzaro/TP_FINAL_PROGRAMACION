@@ -1,4 +1,4 @@
-﻿"""SerializaciÃ³n del estado del juego a/desde estructuras JSON-friendly."""
+"""Serialización del estado del juego a/desde estructuras JSON-friendly."""
 from __future__ import annotations
 
 from typing import Any, Dict, List

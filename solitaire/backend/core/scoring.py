@@ -1,6 +1,6 @@
-﻿"""Puntajes y temporizador para Klondike.
+"""Puntajes y temporizador para Klondike.
 
-Implementa un sistema simple de puntuaciÃ³n Standard y Vegas.
+Implementa un sistema simple de puntuación Standard y Vegas.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ Mode = Literal["standard", "vegas"]
 
 @dataclass
 class Scoring:
-    """GestiÃ³n de puntaje y tiempo.
+    """Gestión de puntaje y tiempo.
 
     - ``mode``: "standard" o "vegas"
     - ``score``: puntaje acumulado
@@ -40,5 +40,6 @@ class Scoring:
     def add_points(self, pts: int) -> None:
         """Suma puntos (el total puede ser negativo)."""
         self.score += pts
+
 
 

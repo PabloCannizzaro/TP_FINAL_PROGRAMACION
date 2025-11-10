@@ -108,7 +108,7 @@ def post_move(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="No hay partida activa")
     mv = payload.get("move")
     if not isinstance(mv, dict):
-        raise HTTPException(status_code=400, detail="move inválido")
+        raise HTTPException(status_code=400, detail="move invǭlido")
     ok = g.apply_move(mv)
     if not ok:
         raise HTTPException(status_code=400, detail="Movimiento ilegal")
@@ -117,7 +117,7 @@ def post_move(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
     # si ganó, registrar en scoreboard usando el nombre del jugador si existe
     try:
         if g.is_won():
-            nombre = p.jugador or payload.get("name") or "Anónimo"
+            nombre = p.jugador or payload.get("name") or "An��nimo"
             _scoreboard().add(name=nombre, score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
     except Exception:
         pass
@@ -149,7 +149,7 @@ def post_autoplay(request: Request, payload: Dict[str, Any] | None = None) -> Di
     # si al terminar el autoplay se ganó, registrar en el scoreboard
     try:
         if g.is_won():
-            nombre = p.jugador or "Anónimo"
+            nombre = p.jugador or "An��nimo"
             _scoreboard().add(name=nombre, score=p.puntaje, moves=p.movimientos, seconds=p.tiempo_segundos, draw=p.draw_count)
     except Exception:
         pass
@@ -163,7 +163,7 @@ def post_undo(request: Request) -> Dict[str, Any]:
     if not g or not p:
         raise HTTPException(status_code=400, detail="No hay partida activa")
     if not g.undo():
-        raise HTTPException(status_code=400, detail="No hay más para deshacer")
+        raise HTTPException(status_code=400, detail="No hay mǭs para deshacer")
     p.actualizar_desde_juego(g)
     _repo().actualizar(p)
     return {"ok": True, "state": serialize_state(g.to_state())}
@@ -176,7 +176,7 @@ def post_redo(request: Request) -> Dict[str, Any]:
     if not g or not p:
         raise HTTPException(status_code=400, detail="No hay partida activa")
     if not g.redo():
-        raise HTTPException(status_code=400, detail="No hay más para rehacer")
+        raise HTTPException(status_code=400, detail="No hay mǭs para rehacer")
     p.actualizar_desde_juego(g)
     _repo().actualizar(p)
     return {"ok": True, "state": serialize_state(g.to_state())}
@@ -209,9 +209,9 @@ def list_saves() -> Dict[str, Any]:
 def get_scoreboard(request: Request) -> Dict[str, Any]:
     """Ranking con partidas ganadas y, si corresponde, la partida en curso.
 
-    Siempre devuelve las entradas persistidas (victorias). Adems, si el
+    Siempre devuelve las entradas persistidas (victorias). Además, si el
     cliente actual tiene una partida activa con nombre de jugador, se incluye
-    una fila adicional representando sus estadsticas *hasta el momento*,
+    una fila adicional representando sus estadísticas hasta el momento,
     aunque no haya finalizado el juego. El orden respeta (-score, seconds,
     moves, ts) como en el servicio de scoreboard.
     """
@@ -220,7 +220,7 @@ def get_scoreboard(request: Request) -> Dict[str, Any]:
         h = _get_holder(request)
         p = h.partida if h else None
         if p and p.jugador:
-            # Si la partida ya est ganada, NO agregamos la fila "en curso"
+            # Si la partida ya está ganada, NO agregamos la fila "en curso"
             # para evitar duplicados con la entrada persistida del scoreboard.
             won = False
             try:
@@ -326,3 +326,4 @@ def get_leaderboard(limit: int = 50) -> Dict[str, Any]:
             prev["partidas"] += 1
     ordered = sorted(best.values(), key=lambda x: (-x["max_score"], x["jugador"]))[:limit]
     return {"items": ordered}
+

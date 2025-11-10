@@ -1,6 +1,6 @@
-﻿"""HistorialMovimientos: undo/redo history using collections.deque.
+"""HistorialMovimientos: historial de deshacer/rehacer usando collections.deque.
 
-Provides O(1) push/pop operations for unlimited history.
+Proporciona operaciones push/pop en O(1) para un historial ilimitado.
 """
 from __future__ import annotations
 
@@ -11,10 +11,10 @@ T = TypeVar("T")
 
 
 class HistorialMovimientos(Generic[T]):
-    """Two-stack undo/redo using two deques: ``_undos`` and ``_redos``.
+    """Sistema de deshacer/rehacer con dos pilas (deques): ``_undos`` y ``_redos``.
 
-    The stored element ``T`` can be a move or a full serialized state.
-    In this project we store serialized states for simplicity and robustness.
+    El elemento almacenado ``T`` puede ser un movimiento o un estado completo serializado.
+    En este proyecto almacenamos estados serializados por simplicidad y robustez.
     """
 
     def __init__(self) -> None:
@@ -22,37 +22,41 @@ class HistorialMovimientos(Generic[T]):
         self._redos: Deque[T] = deque()
 
     def push_undo(self, item: T) -> None:
-        """Push an item onto the undo stack and clear redo history."""
+        """Agrega un elemento a la pila de deshacer y limpia el historial de rehacer."""
 
         self._undos.append(item)
         self._redos.clear()
 
     def push_undo_preserve_redo(self, item: T) -> None:
-        """Push onto undo stack without clearing redo.
+        """Agrega un elemento a la pila de deshacer sin limpiar la de rehacer.
 
-        Ãštil para operaciones de "rehacer" donde no queremos descartar el
-        resto del historial de redo.
+        Útil para operaciones de "rehacer" donde no queremos descartar
+        el resto del historial de redo.
         """
 
         self._undos.append(item)
 
     def can_undo(self) -> bool:
+        """Indica si hay acciones que se pueden deshacer."""
         return len(self._undos) > 0
 
     def can_redo(self) -> bool:
+        """Indica si hay acciones que se pueden rehacer."""
         return len(self._redos) > 0
 
     def pop_undo(self) -> Optional[T]:
+        """Extrae el último elemento de la pila de deshacer (si existe)."""
         return self._undos.pop() if self._undos else None
 
     def push_redo(self, item: T) -> None:
+        """Agrega un elemento a la pila de rehacer."""
         self._redos.append(item)
 
     def pop_redo(self) -> Optional[T]:
+        """Extrae el último elemento de la pila de rehacer (si existe)."""
         return self._redos.pop() if self._redos else None
 
     def clear(self) -> None:
+        """Limpia por completo ambos historiales (deshacer y rehacer)."""
         self._undos.clear()
         self._redos.clear()
-
-

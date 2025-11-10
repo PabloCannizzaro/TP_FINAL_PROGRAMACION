@@ -1,6 +1,6 @@
-﻿"""Servicio de tabla de puntuaciones con soporte de Ãrbol BST.
+"""Servicio de tabla de puntuaciones con soporte de Árbol BST.
 
-Persiste un JSON y, para ordenar, usa un Ãrbol Binario de BÃºsqueda
+Persiste un JSON y, para ordenar, usa un Árbol Binario de Búsqueda
 con la clave de orden (-score, seconds, moves, timestamp).
 """
 from __future__ import annotations
@@ -49,7 +49,7 @@ class ScoreboardService:
 
     def add(self, name: str, score: int, moves: int, seconds: int, draw: int) -> None:
         data = self._load()
-        entry = ScoreEntry(name=name or "AnÃ³nimo", score=int(score), moves=int(moves), seconds=int(seconds), draw=int(draw), ts=time.time())
+        entry = ScoreEntry(name=name or "Anonimo", score=int(score), moves=int(moves), seconds=int(seconds), draw=int(draw), ts=time.time())
         data.append(asdict(entry))
         self._save(data)
 
@@ -62,5 +62,4 @@ class ScoreboardService:
             tree.insert(key, row)
         # inorder da ascendente por clave; ya que usamos -score, es score descendente
         return [v for _, v in tree.inorder()]
-
 

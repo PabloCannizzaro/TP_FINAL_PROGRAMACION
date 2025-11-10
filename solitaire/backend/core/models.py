@@ -1,4 +1,4 @@
-﻿"""Modelos base para el solitario Klondike.
+"""Modelos base para el solitario Klondike.
 
 Contiene definiciones de palos, rangos, cartas y movimientos.
 """
@@ -71,11 +71,12 @@ class MoveType(str, Enum):
 
 @dataclass
 class Move:
-    """Representa un movimiento atÃ³mico en el juego."""
+    """Representa un movimiento atómico en el juego."""
 
     type: MoveType
     source: Optional[Tuple[str, int]] = None
     target: Optional[Tuple[str, int]] = None
     count: int = 1
+
 
 
