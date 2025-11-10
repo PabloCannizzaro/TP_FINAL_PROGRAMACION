@@ -24,7 +24,11 @@ def main() -> None:
         port = int(port_str)
     except Exception:
         port = 8000
-    uvicorn.run(create_app(), host="0.0.0.0", port=port, reload=False)
+    # En Windows, ligar por defecto a localhost para evitar problemas
+    # con firewalls/redes; en otros SO, 0.0.0.0 habilita acceder desde LAN/contener.
+    default_host = "127.0.0.1" if os.name == "nt" else "0.0.0.0"
+    host = os.environ.get("HOST", default_host)
+    uvicorn.run(create_app(), host=host, port=port, reload=False)
 
 
 if __name__ == "__main__":

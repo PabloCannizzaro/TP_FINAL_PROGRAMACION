@@ -183,6 +183,18 @@ function safeSet(key, value) {
 }
 
 async function newGame() {
+  // Siempre pedir el nombre antes de crear una nueva partida
+  try {
+    if (!window.__skipNamePromptOnce) { try { openNameModal(); } catch {} return; }
+  } catch (_) {}
+  // resetear bandera de una sola vez para el prompt de nombre
+  try { window.__skipNamePromptOnce = false; } catch (_) {}
+  // Si la partida anterior fue ganada, pedir nuevamente el nombre (salvo override)
+  try {
+    if (!window.__skipWonCheckOnce && state && state.won) { try { openNameModal(); } catch {} return; }
+  } catch (_) {}
+  // resetear bandera de una sola vez para chequeo de victoria
+  try { window.__skipWonCheckOnce = false; } catch (_) {}
   const name = safeGet('playerName');
   if (!name) { try { openNameModal(); } catch {} return; }
   await action(async () => {
@@ -581,9 +593,14 @@ function openNameModal() {
   nameModal.setAttribute('aria-hidden', 'false');
   setTimeout(() => {
     if (inputName) {
+      // prefill con el nombre actual si existe
+      try {
+        const cur = safeGet('playerName');
+        if (cur && !inputName.value) inputName.value = cur;
+      } catch {}
       // prefill con ?player= si existe
       const p = new URLSearchParams(window.location.search).get('player');
-      if (p && !inputName.value) inputName.value = p;
+      if (p) inputName.value = p;
       inputName.focus();
     }
   }, 50);
@@ -597,6 +614,9 @@ function savePlayerName(ev) {
   closeNameModal();
   // devolver foco y arrancar partida con el nombre
   const newBtn = document.getElementById('btn-new'); if (newBtn) newBtn.focus();
+  // Permitir que newGame avance aunque la partida anterior esté ganada
+  try { window.__skipWonCheckOnce = true; } catch (_) {}
+  try { window.__skipNamePromptOnce = true; } catch (_) {}
   newGame();
   renderHUD();
 }

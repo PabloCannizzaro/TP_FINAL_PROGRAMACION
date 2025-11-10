@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import uuid
 from pathlib import Path
+import time
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException, Request
@@ -205,8 +206,61 @@ def list_saves() -> Dict[str, Any]:
 
 
 @router.get("/scoreboard")
-def get_scoreboard() -> Dict[str, Any]:
+def get_scoreboard(request: Request) -> Dict[str, Any]:
+    """Ranking con partidas ganadas y, si corresponde, la partida en curso.
+
+    Siempre devuelve las entradas persistidas (victorias). Adems, si el
+    cliente actual tiene una partida activa con nombre de jugador, se incluye
+    una fila adicional representando sus estadsticas *hasta el momento*,
+    aunque no haya finalizado el juego. El orden respeta (-score, seconds,
+    moves, ts) como en el servicio de scoreboard.
+    """
     items = _scoreboard().sorted_entries()
+    try:
+        h = _get_holder(request)
+        p = h.partida if h else None
+        if p and p.jugador:
+            # Si la partida ya est ganada, NO agregamos la fila "en curso"
+            # para evitar duplicados con la entrada persistida del scoreboard.
+            won = False
+            try:
+                won = bool((p.estado_serializado or {}).get("won", False))
+            except Exception:
+                won = False
+            if won:
+                return {"items": items}
+            current_row = {
+                "name": p.jugador,
+                "score": int(p.puntaje),
+                "moves": int(p.movimientos),
+                "seconds": int(p.tiempo_segundos),
+                "draw": int(p.draw_count),
+                # ts solo para desempate final; como es en curso, usamos ahora
+                "ts": float(time.time()),
+                # bandera opcional por si el frontend la quiere distinguir
+                "live": True,
+            }
+            # Evitar duplicar si ya existe una fila exactamente igual
+            exists_same = any(
+                (r.get("name") == current_row["name"]
+                 and int(r.get("score", 0)) == current_row["score"]
+                 and int(r.get("moves", 0)) == current_row["moves"]
+                 and int(r.get("seconds", 0)) == current_row["seconds"]
+                 and int(r.get("draw", 1)) == current_row["draw"]) for r in items
+            )
+            if exists_same:
+                return {"items": items}
+            def sort_key(row: Dict[str, Any]):
+                return (
+                    -int(row.get("score", 0)),
+                    int(row.get("seconds", 0)),
+                    int(row.get("moves", 0)),
+                    float(row.get("ts", 0.0)),
+                )
+            items = sorted([*items, current_row], key=sort_key)
+    except Exception:
+        # No interrumpir el endpoint si no hay holder/partida
+        pass
     return {"items": items}
 
 
