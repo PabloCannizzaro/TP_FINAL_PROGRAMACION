@@ -759,3 +759,133 @@ if (document.readyState === 'loading') {
     applyDecorations();
   }
 })();
+
+// ---- Admin de usuarios: modal + acciones ----
+(function(){
+  const usersModal = document.getElementById('users-modal');
+  const btnUsers = document.getElementById('btn-users');
+  const btnCloseUsers = document.getElementById('btn-close-users');
+  const usersList = document.getElementById('users-list');
+  const ADMIN_CODE = 'solitariopll';
+
+  // Decorar botón Usuarios con emoji si existe
+  try {
+    if (btnUsers) {
+      const label = (btnUsers.textContent || '').trim();
+      btnUsers.innerHTML = `<span class="emoji" aria-hidden="true">👥</span><span class="label">${label}</span>`;
+      btnUsers.classList.add('btn-stacked');
+    }
+  } catch {}
+
+  async function loadUsers() {
+    try {
+      const res = await api.get('/api/users');
+      if (!usersList) return;
+      usersList.innerHTML = '';
+      const items = res.items || [];
+      const ul = usersList;
+      ul.classList.add('list-condensed');
+      if (!items.length) {
+        const li = document.createElement('li');
+        li.textContent = 'No hay usuarios registrados';
+        ul.appendChild(li);
+        return;
+      }
+      items.forEach((name) => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.textContent = name;
+        const actions = document.createElement('span');
+        actions.className = 'inline-actions';
+        const bEdit = document.createElement('button');
+        bEdit.className = 'btn-edit';
+        bEdit.textContent = 'Editar';
+        bEdit.setAttribute('data-act', 'edit');
+        bEdit.setAttribute('data-name', name);
+        const bDel = document.createElement('button');
+        bDel.className = 'btn-danger';
+        bDel.textContent = 'Borrar';
+        bDel.setAttribute('data-act', 'del');
+        bDel.setAttribute('data-name', name);
+        actions.appendChild(bEdit);
+        actions.appendChild(bDel);
+        li.appendChild(span);
+        li.appendChild(actions);
+        ul.appendChild(li);
+      });
+    } catch (e) {
+      console.error(e); try { toast('No se pudo cargar usuarios'); } catch {}
+    }
+  }
+
+  async function deleteUser(name) {
+    await action(async () => {
+      const res = await fetch(`/api/users/${encodeURIComponent(name)}`, { method: 'DELETE', headers: { 'X-Client-Id': getClientId() } });
+      if (!res.ok) throw new Error(await parseApiError(res));
+      await loadUsers();
+      try { toast('Usuario borrado'); } catch {}
+    });
+  }
+
+  async function renameUser(oldName, newName) {
+    await action(async () => {
+      const res = await fetch(`/api/users/${encodeURIComponent(oldName)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Client-Id': getClientId() },
+        body: JSON.stringify({ new_name: newName })
+      });
+      if (!res.ok) throw new Error(await parseApiError(res));
+      await loadUsers();
+      try { toast('Nombre actualizado'); } catch {}
+    });
+  }
+
+  if (btnUsers && usersModal) {
+    btnUsers.addEventListener('click', async () => {
+      const code = prompt('Ingrese código de administrador');
+      if (code !== ADMIN_CODE) { try { toast('Código incorrecto'); } catch {} return; }
+      await loadUsers();
+      usersModal.setAttribute('aria-hidden', 'false');
+    });
+  }
+  if (btnCloseUsers && usersModal) {
+    btnCloseUsers.addEventListener('click', () => usersModal.setAttribute('aria-hidden', 'true'));
+  }
+  if (usersModal) {
+    usersModal.addEventListener('click', (e) => { if (e.target === usersModal) usersModal.setAttribute('aria-hidden', 'true'); });
+  }
+  if (usersList) {
+    usersList.addEventListener('click', async (e) => {
+      const t = e.target;
+      if (!(t && t.getAttribute)) return;
+      const act = t.getAttribute('data-act');
+      const name = t.getAttribute('data-name');
+      if (!act || !name) return;
+      if (act === 'del') {
+        if (confirm(`¿Borrar usuario "${name}"? Esta acción quitará su nombre del ranking y partidas.`)) {
+          await deleteUser(name);
+        }
+      } else if (act === 'edit') {
+        const nn = prompt('Nuevo nombre para el usuario:', name);
+        const val = (nn || '').trim();
+        if (!val || val === name) return;
+        await renameUser(name, val);
+      }
+    });
+  }
+})();
+
+// Asegurar prompt de nombre en arranque si no está definido
+(function(){
+  function ensureNamePrompt(){
+    try {
+      const existing = safeGet('playerName');
+      if (!existing) { try { openNameModal(); } catch {} }
+    } catch {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureNamePrompt);
+  } else {
+    ensureNamePrompt();
+  }
+})();

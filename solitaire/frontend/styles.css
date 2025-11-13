@@ -56,6 +56,14 @@ button:focus, .stock:focus { outline:2px solid var(--accent); outline-offset:2px
 .modal-body input[type="text"] { width:100%; background:#13283b; color:var(--fg); border:1px solid #345; border-radius:6px; padding:.6rem .7rem; font-size:1rem; }
 .modal-actions button { background:#2a884d; color:#fff; border:1px solid #206a3b; border-radius:6px; padding:.45rem .8rem; cursor:pointer; }
 .modal-actions button:hover { background:#279248; }
+.btn-danger { background:#a12828 !important; border-color:#7a1d1d !important; }
+.btn-danger:hover { background:#b52a2a !important; }
+.btn-edit { background:#2a6ea8 !important; border-color:#1f537f !important; }
+.btn-edit:hover { background:#2f7fbe !important; }
+.inline-actions { display:inline-flex; gap:.5rem; margin-left:.5rem; }
+.list-condensed { list-style: none; padding-left: 0; margin: 0; }
+.list-condensed li { display:flex; align-items:center; justify-content:space-between; padding:.35rem .25rem; border-bottom:1px solid #234; }
+.list-condensed li:last-child { border-bottom:none; }
 .hint { color: var(--muted); margin-top:.5rem; font-size:.9rem; }
 .modal-body ol { margin: .25rem 0 0; padding-left: 1.25rem; }
 .modal-body li { padding: .15rem 0; }

@@ -24,6 +24,7 @@
         <button id="btn-hint" title="Sugerir movimiento">Pista</button>
         <button id="btn-autoplay" title="Auto mover a fundación">Autoplay</button>
         <button id="btn-leaderboard" title="Ver mejores puntajes">Ranking</button>
+        <button id="btn-users" title="Administrar usuarios registrados">Usuarios</button>
         <button id="btn-rules" title="Ver reglas detalladas">Reglas</button>
       </nav>
     </header>
@@ -125,6 +126,19 @@
         <div class="modal-body">
           <ol id="leaderboard-list" start="1"></ol>
           <p class="hint">Se listan jugadores previos con su mejor puntuación.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de usuarios (admin) -->
+    <div id="users-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="users-title">
+      <div class="modal-content small" role="document">
+        <header class="modal-header">
+          <h2 id="users-title">Usuarios registrados</h2>
+          <button id="btn-close-users" class="modal-close" aria-label="Cerrar">&times;</button>
+        </header>
+        <div class="modal-body">
+          <ul id="users-list"></ul>
+          <p class="hint">Editar o borrar usuarios afecta ranking y partidas guardadas.</p>
         </div>
       </div>
     </div>

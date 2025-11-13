@@ -31,6 +31,7 @@ from ..core.serializer import serialize_state
 from ..domain.partida import Partida
 from ..domain.repositorio import RepositorioPartidasJSON
 from ..services.scoreboard import ScoreboardService
+import json
 
 
 router = APIRouter(prefix="/api")
@@ -326,4 +327,113 @@ def get_leaderboard(limit: int = 50) -> Dict[str, Any]:
             prev["partidas"] += 1
     ordered = sorted(best.values(), key=lambda x: (-x["max_score"], x["jugador"]))[:limit]
     return {"items": ordered}
+
+
+# -------------------- Usuarios (admin simple) --------------------
+
+
+def _scoreboard_path() -> Path:
+    return Path(__file__).resolve().parents[2] / "data" / "scoreboard.json"
+
+
+@router.get("/users")
+def list_users() -> Dict[str, Any]:
+    """Lista de usuarios registrados basada en partidas y scoreboard.
+
+    Retorna nombres únicos encontrados en ``saves.json`` (campo ``jugador``)
+    y en ``scoreboard.json`` (campo ``name``). La lista viene ordenada
+    alfabéticamente para facilitar su lectura.
+    """
+    names = set()
+    try:
+        for p in _repo().listar():
+            if p.jugador:
+                names.add(str(p.jugador))
+    except Exception:
+        pass
+    try:
+        sb_path = _scoreboard_path()
+        if sb_path.exists():
+            data = json.loads(sb_path.read_text(encoding="utf-8") or "[]")
+            for row in data if isinstance(data, list) else []:
+                n = row.get("name")
+                if n:
+                    names.add(str(n))
+    except Exception:
+        pass
+    items = sorted(names, key=lambda s: s.lower())
+    return {"items": items}
+
+
+@router.put("/users/{name}")
+def rename_user(name: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Renombra un usuario en saves y scoreboard.
+
+    body: {"new_name": "..."}
+    """
+    new_name = str(payload.get("new_name", "")).strip()
+    if not new_name:
+        raise HTTPException(status_code=400, detail="new_name requerido")
+    # Actualizar saves.json
+    repo = _repo()
+    updated_saves = 0
+    try:
+        for p in repo.listar():
+            if (p.jugador or "") == name:
+                p.jugador = new_name
+                repo.actualizar(p)
+                updated_saves += 1
+    except Exception:
+        pass
+    # Actualizar scoreboard.json
+    updated_scores = 0
+    try:
+        sb_path = _scoreboard_path()
+        data = []
+        if sb_path.exists():
+            data = json.loads(sb_path.read_text(encoding="utf-8") or "[]")
+        changed = False
+        if isinstance(data, list):
+            for row in data:
+                if (row.get("name") or "") == name:
+                    row["name"] = new_name
+                    updated_scores += 1
+                    changed = True
+        if changed:
+            sb_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+    return {"ok": True, "updated_saves": updated_saves, "updated_scores": updated_scores}
+
+
+@router.delete("/users/{name}")
+def delete_user(name: str) -> Dict[str, Any]:
+    """Borra un usuario de saves y scoreboard.
+
+    En ``saves.json`` se quita la asociación (``jugador = None``) para no
+    eliminar partidas. En ``scoreboard.json`` se remueven filas con ese nombre.
+    """
+    repo = _repo()
+    cleared_saves = 0
+    try:
+        for p in repo.listar():
+            if (p.jugador or "") == name:
+                p.jugador = None
+                repo.actualizar(p)
+                cleared_saves += 1
+    except Exception:
+        pass
+    removed_scores = 0
+    try:
+        sb_path = _scoreboard_path()
+        if sb_path.exists():
+            data = json.loads(sb_path.read_text(encoding="utf-8") or "[]")
+            if isinstance(data, list):
+                new_data = [row for row in data if (row.get("name") or "") != name]
+                removed_scores = len(data) - len(new_data)
+                if removed_scores:
+                    sb_path.write_text(json.dumps(new_data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+    return {"ok": True, "cleared_saves": cleared_saves, "removed_scores": removed_scores}
 
